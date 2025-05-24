@@ -542,6 +542,19 @@
                     fadeOut();
                 });
 
+                // Hide the sun too
+                const sun = this.scene.children.find(child => child.geometry && child.geometry.type === 'SphereGeometry' && child.geometry.parameters.radius === 2);
+                if (sun) {
+                    sun.material.transparent = true;
+                    const fadeOut = () => {
+                        sun.material.opacity = Math.max(0, sun.material.opacity - 0.02);
+                        if (sun.material.opacity > 0) {
+                            requestAnimationFrame(fadeOut);
+                        }
+                    };
+                    fadeOut();
+                }
+
                 if (this.stars) {
                     this.stars.material.transparent = true;
                     const fadeOut = () => {
@@ -577,8 +590,8 @@
             }
 
             createWorldBackground(imageUrl) {
-    // Create a large flat plane
-    const bgGeometry = new THREE.PlaneGeometry(80, 60); // Bigger for better coverage
+    // Create a flat plane
+    const bgGeometry = new THREE.PlaneGeometry(20, 15); // Smaller, more focused
     
     // Load the custom image
     const textureLoader = new THREE.TextureLoader();
@@ -586,22 +599,29 @@
     
     const bgMaterial = new THREE.MeshBasicMaterial({ 
         map: texture,
-        side: THREE.DoubleSide, // Visible from both sides
+        side: THREE.DoubleSide,
         transparent: true,
         opacity: 0
     });
     
     this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
     
-    // Position it at the center, behind everything
-    this.worldBackground.position.set(0, 0, -30); // Far behind the solar system
+    // Position it directly behind the selected artifact
+    const artifactPos = this.selectedArtifact.position.clone();
+    
+    // Move the plane to be right behind the artifact (closer to camera)
+    const directionToCamera = this.camera.position.clone().sub(artifactPos).normalize();
+    const behindArtifact = artifactPos.clone().sub(directionToCamera.multiplyScalar(8));
+    
+    this.worldBackground.position.copy(behindArtifact);
+    this.worldBackground.lookAt(this.camera.position); // Face the camera
     
     this.scene.add(this.worldBackground);
     
     // Fade in background
     const fadeIn = () => {
-        this.worldBackground.material.opacity = Math.min(0.7, this.worldBackground.material.opacity + 0.02);
-        if (this.worldBackground.material.opacity < 0.7) {
+        this.worldBackground.material.opacity = Math.min(0.8, this.worldBackground.material.opacity + 0.02);
+        if (this.worldBackground.material.opacity < 0.8) {
             requestAnimationFrame(fadeIn);
         }
     };
