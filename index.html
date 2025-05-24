@@ -683,15 +683,6 @@ this.worldBackground.position.set(
                 
     this.scene.add(this.worldBackground);
 
-    // Fade in the background smoothly
-    const fadeIn = () => {
-        this.worldBackground.material.opacity = Math.min(0.9, this.worldBackground.material.opacity + 0.02);
-        if (this.worldBackground.material.opacity < 0.9) {
-            requestAnimationFrame(fadeIn);
-        }
-    };
-    fadeIn();
-                
     console.log('Background plane added to scene');
 }
 
