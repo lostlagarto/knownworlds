@@ -577,8 +577,8 @@
             }
 
             createWorldBackground(imageUrl) {
-    // Create a large flat plane behind the artifact
-    const bgGeometry = new THREE.PlaneGeometry(60, 40); // Width x Height
+    // Create a large flat plane
+    const bgGeometry = new THREE.PlaneGeometry(80, 60); // Bigger for better coverage
     
     // Load the custom image
     const textureLoader = new THREE.TextureLoader();
@@ -586,30 +586,22 @@
     
     const bgMaterial = new THREE.MeshBasicMaterial({ 
         map: texture,
-        side: THREE.FrontSide,
+        side: THREE.DoubleSide, // Visible from both sides
         transparent: true,
         opacity: 0
     });
     
     this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
     
-    // Position the plane behind the selected artifact
-    const artifactPos = this.selectedArtifact.position;
-    this.worldBackground.position.set(
-        artifactPos.x - 8,  // Slightly behind and to the left
-        artifactPos.y,      // Same height as artifact
-        artifactPos.z - 8   // Behind the artifact
-    );
-    
-    // Face the plane toward the camera viewing angle
-    this.worldBackground.lookAt(this.camera.position);
+    // Position it at the center, behind everything
+    this.worldBackground.position.set(0, 0, -30); // Far behind the solar system
     
     this.scene.add(this.worldBackground);
     
     // Fade in background
     const fadeIn = () => {
-        this.worldBackground.material.opacity = Math.min(0.8, this.worldBackground.material.opacity + 0.02);
-        if (this.worldBackground.material.opacity < 0.8) {
+        this.worldBackground.material.opacity = Math.min(0.7, this.worldBackground.material.opacity + 0.02);
+        if (this.worldBackground.material.opacity < 0.7) {
             requestAnimationFrame(fadeIn);
         }
     };
