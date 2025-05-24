@@ -635,9 +635,9 @@
                 animateCamera();
             }
 
-            createWorldBackground(imageUrl) {
+    createWorldBackground(imageUrl) {
     // Create a flat plane
-    const bgGeometry = new THREE.PlaneGeometry(60, 40);
+    const bgGeometry = new THREE.PlaneGeometry(80, 60);
     
     // Load the custom image with better error handling
     const textureLoader = new THREE.TextureLoader();
@@ -672,13 +672,15 @@
     this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
     this.worldBackground.userData.isBackground = true;
     
-// Position it directly behind the selected artifact
-const artifactPos = this.selectedArtifact.position.clone();
-this.worldBackground.position.set(
-    artifactPos.x - 1,  // Slightly offset
-    artifactPos.y,      // Same height
-    artifactPos.z - 10  // Behind the artifact
-);
+    // Position it at a fixed distance behind the camera's current look direction
+    const cameraDirection = new THREE.Vector3();
+    this.camera.getWorldDirection(cameraDirection);
+    
+    // Place the background at a fixed distance in the direction the camera is looking
+    this.worldBackground.position.copy(this.camera.position)
+        .add(cameraDirection.multiplyScalar(50));
+    
+    // Make it always face the camera (perpendicular to camera direction)
     this.worldBackground.lookAt(this.camera.position);
                 
     this.scene.add(this.worldBackground);
