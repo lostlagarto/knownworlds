@@ -609,7 +609,7 @@
 
 createWorldBackground(imageUrl) {
     // Create a flat plane
-    const bgGeometry = new THREE.PlaneGeometry(30, 20);
+    const bgGeometry = new THREE.PlaneGeometry(40, 30);
     
     // Load the custom image
     const textureLoader = new THREE.TextureLoader();
@@ -624,19 +624,15 @@ createWorldBackground(imageUrl) {
     
     this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
     
-    // Position it directly behind the artifact at a fixed distance
-    this.worldBackground.position.set(
-        this.selectedArtifact.position.x - 10,
-        this.selectedArtifact.position.y,
-        this.selectedArtifact.position.z - 10
-    );
+    // Position it far behind everything at origin
+    this.worldBackground.position.set(0, 0, -50);
     
     this.scene.add(this.worldBackground);
     
     // Fade in background
     const fadeIn = () => {
-        this.worldBackground.material.opacity = Math.min(0.8, this.worldBackground.material.opacity + 0.02);
-        if (this.worldBackground.material.opacity < 0.8) {
+        this.worldBackground.material.opacity = Math.min(0.7, this.worldBackground.material.opacity + 0.02);
+        if (this.worldBackground.material.opacity < 0.7) {
             requestAnimationFrame(fadeIn);
         }
     };
