@@ -672,8 +672,13 @@
     this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
     this.worldBackground.userData.isBackground = true;
     
-    // Position it far behind everything
-    this.worldBackground.position.set(0, 0, -80);
+// Position it directly behind the selected artifact
+const artifactPos = this.selectedArtifact.position.clone();
+this.worldBackground.position.set(
+    artifactPos.x - 5,  // Slightly offset
+    artifactPos.y,      // Same height
+    artifactPos.z - 10  // Behind the artifact
+);
     
     this.scene.add(this.worldBackground);
     
