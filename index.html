@@ -363,6 +363,7 @@
                         x: event.touches[0].clientX, 
                         y: event.touches[0].clientY 
                     };
+                    this.originalTouch = { x: event.touches[0].clientX, y: event.touches[0].clientY, time: Date.now() };
                 }
             }
 
@@ -386,9 +387,29 @@
                 }
             }
 
-            onTouchEnd() {
-                this.isRotating = false;
-            }
+            onTouchEnd(event) {
+    event.preventDefault();
+    
+    // Check if this was a tap (not a drag)
+    if (this.touchStart && this.isRotating) {
+        const touchEnd = event.changedTouches[0];
+        const distance = Math.sqrt(
+            Math.pow(touchEnd.clientX - this.touchStart.x, 2) + 
+            Math.pow(touchEnd.clientY - this.touchStart.y, 2)
+        );
+        
+        // If finger didn't move much, treat it as a tap
+        if (distance < 10) {
+            this.onClick({
+                clientX: touchEnd.clientX,
+                clientY: touchEnd.clientY
+            });
+        }
+    }
+    
+    this.isRotating = false;
+    this.touchStart = null;
+}
 
             onWheel(event) {
                 if (this.isTransitioning) return;
