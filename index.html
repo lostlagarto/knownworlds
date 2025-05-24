@@ -102,18 +102,28 @@
             background: rgba(100, 255, 218, 0.1);
         }
 
-        #instructions {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            max-width: 300px;
-            font-size: 12px;
-            line-height: 1.4;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+#return-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+#return-to-system {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border: 1px solid rgba(100, 255, 218, 0.3);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#return-to-system:hover {
+    border-color: #64ffda;
+    background: rgba(100, 255, 218, 0.1);
+}
 
         .loading {
             position: fixed;
@@ -143,15 +153,7 @@
                 padding: 8px 12px;
                 font-size: 12px;
             }
-
-            #instructions {
-                bottom: 10px;
-                left: 10px;
-                right: 10px;
-                max-width: none;
-                font-size: 11px;
-            }
-        }
+     }
 
         @media (max-width: 480px) {
             #info-panel {
@@ -185,20 +187,19 @@
     <div id="info-panel">
         <button class="close-btn" id="close-panel">&times;</button>
         <h2 id="artifact-title">Artifact Title</h2>
-        <p id="artifact-description">Artifact description will appear here...</p>
+        <p id="artifact-description"></p>
         <div id="artifact-images"></div>
-        <audio id="artifact-audio" controls style="width: 100%; margin-top: 15px; display: none; height: 30px;">
-            Your browser does not support the audio element.
-        </audio>
+        <div id="audio-controls" style="margin-top: 15px; display: none;">
+            <button id="audio-toggle" style="background: none; border: 1px solid #64ffda; color: #64ffda; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
+                ▶️ Play
+            </button>
+            <audio id="artifact-audio" style="display: none;"></audio>
+        </div>
     </div>
 
-    <div id="instructions">
-        <strong>Navigation:</strong><br>
-        • Click artifacts to explore worlds<br>
-        • Mouse/touch to orbit around<br>
-        • Scroll/pinch to zoom<br>
-        • Switch between workshop systems
-    </div>
+<div id="return-button" style="display: none;">
+    <button id="return-to-system">← Return to Solar System</button>
+</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
@@ -310,6 +311,22 @@
 
                 document.getElementById('close-panel').addEventListener('click', () => {
                     this.hideInfoPanel();
+                });
+                document.getElementById('return-to-system').addEventListener('click', () => {
+                    this.hideInfoPanel();
+                });
+
+                document.getElementById('audio-toggle').addEventListener('click', () => {
+                    const audio = document.getElementById('artifact-audio');
+                    const button = document.getElementById('audio-toggle');
+    
+                    if (audio.paused) {
+                        audio.play();
+                        button.textContent = '⏸️ Pause';
+                    } else {
+                        audio.pause();
+                        button.textContent = '▶️ Play';
+                    }
                 });
             }
 
@@ -470,6 +487,7 @@
                     emissiveIntensity: 0.3
                 });
                 const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+                sun.userData.isSun = true;
                 this.scene.add(sun);
 
                 const system = this.solarSystems[index];
@@ -589,9 +607,9 @@
                 animateCamera();
             }
 
-            createWorldBackground(imageUrl) {
+createWorldBackground(imageUrl) {
     // Create a flat plane
-    const bgGeometry = new THREE.PlaneGeometry(20, 15); // Smaller, more focused
+    const bgGeometry = new THREE.PlaneGeometry(30, 20);
     
     // Load the custom image
     const textureLoader = new THREE.TextureLoader();
@@ -606,15 +624,12 @@
     
     this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
     
-    // Position it directly behind the selected artifact
-    const artifactPos = this.selectedArtifact.position.clone();
-    
-    // Move the plane to be right behind the artifact (closer to camera)
-    const directionToCamera = this.camera.position.clone().sub(artifactPos).normalize();
-    const behindArtifact = artifactPos.clone().sub(directionToCamera.multiplyScalar(8));
-    
-    this.worldBackground.position.copy(behindArtifact);
-    this.worldBackground.lookAt(this.camera.position); // Face the camera
+    // Position it directly behind the artifact at a fixed distance
+    this.worldBackground.position.set(
+        this.selectedArtifact.position.x - 10,
+        this.selectedArtifact.position.y,
+        this.selectedArtifact.position.z - 10
+    );
     
     this.scene.add(this.worldBackground);
     
@@ -629,29 +644,38 @@
 }
 
             showInfoPanel(artifactData) {
+                document.getElementById('return-button').style.display = 'block';
                 const panel = document.getElementById('info-panel');
                 const title = document.getElementById('artifact-title');
                 const description = document.getElementById('artifact-description');
-                const audio = document.getElementById('artifact-audio');
 
                 title.textContent = `${artifactData.name} - ${artifactData.world}`;
                 description.textContent = artifactData.description;
 
-                if (artifactData.audio) {
-                    audio.style.display = 'block';
-                    audio.src = artifactData.audio;
-                    audio.volume = 0.3;
-                    audio.loop = true;
-                    
-                    audio.play().catch(e => {
-                        console.log('Autoplay prevented, user interaction required');
-                    });
-                }
+         if (artifactData.audio) {
+    const audioControls = document.getElementById('audio-controls');
+    const audio = document.getElementById('artifact-audio');
+    const button = document.getElementById('audio-toggle');
+    
+    audioControls.style.display = 'block';
+    audio.src = artifactData.audio;
+    audio.volume = 0.3;
+    audio.loop = true;
+    button.textContent = '▶️ Play';
+    
+    // Optional: Auto-play if you want it
+    audio.play().then(() => {
+        button.textContent = '⏸️ Pause';
+    }).catch(e => {
+        console.log('Autoplay prevented, user will need to click play');
+    });
+}
                 
                 panel.classList.add('visible');
             }
 
             hideInfoPanel() {
+                document.getElementById('return-button').style.display = 'none';
                 const panel = document.getElementById('info-panel');
                 const audio = document.getElementById('artifact-audio');
                 
@@ -682,6 +706,13 @@
                         this.stars.material.transparent = false;
                         this.stars.material.opacity = 1;
                     }
+
+                    // Restore the sun
+                    const sun = this.scene.children.find(child => child.userData.isSun);
+                    if (sun) {
+                        sun.material.transparent = false;
+                        sun.material.opacity = 1;
+                    }
                     
                     this.resetCamera();
                 }
@@ -711,7 +742,7 @@
                 });
 
                 if (this.selectedArtifact && !this.isTransitioning) {
-                    this.selectedArtifact.rotation.y += 0.005;
+                    this.selectedArtifact.rotation.y += 0.002;
                 }
 
                 this.renderer.render(this.scene, this.camera);
