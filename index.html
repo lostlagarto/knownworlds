@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artifact Gallery - Solar System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Orbitron', sans-serif;
             background: linear-gradient(135deg, #0a0a23 0%, #1a1a3a 100%);
             color: white;
             overflow: hidden;
@@ -236,20 +236,16 @@
             init() {
                 const container = document.getElementById('canvas-container');
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.renderer.setClearColor(0x000011);
+                this.renderer.setClearColor(0x0a0a23); // Deep space blue
                 this.renderer.shadowMap.enabled = true;
                 this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 container.appendChild(this.renderer.domElement);
 
                 this.createStarField();
 
-                const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+                // Ambient light for general scene illumination
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
                 this.scene.add(ambientLight);
-
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-                directionalLight.position.set(10, 10, 5);
-                directionalLight.castShadow = true;
-                this.scene.add(directionalLight);
 
                 this.updateCameraPosition();
             }
@@ -472,28 +468,28 @@
                     {
                         name: "Workshop Alpha Centauri",
                         artifacts: [
-                            { name: "The Crystal Codex", world: "Luminara", description: "A mystical realm where knowledge crystallizes into tangible gems that pulse with inner light. Scholars mine wisdom from floating crystal caves.", color: 0x64ffda, distance: 15, audio: "https://www.soundjay.com/misc/sounds/wind-chime-2.wav" },
-                            { name: "Windweaver's Compass", world: "Aethermoor", description: "Sky-bound cities drift on eternal winds above storm-wrapped seas. Wind-riders navigate between floating islands using enchanted compasses.", color: 0xff6b6b, distance: 22, audio: "https://www.soundjay.com/nature/sounds/wind.wav" },
-                            { name: "Memory Vessel", world: "Chronos Harbor", description: "A port city existing simultaneously across multiple timelines. Merchants trade memories and experiences from parallel lives.", color: 0x4ecdc4, distance: 29, audio: "https://www.soundjay.com/misc/sounds/clock-tick.wav" },
-                            { name: "Songbird Automaton", world: "Harmonic Gardens", description: "Mechanical gardens where clockwork creatures create music from morning dew and moonlight, tended by musician-gardeners.", color: 0xffe66d, distance: 36, audio: "https://www.soundjay.com/nature/sounds/birds.wav" }
+                            { name: "The Crystal Codex", world: "Luminara", description: "A mystical realm where knowledge crystallizes into tangible gems that pulse with inner light. Scholars mine wisdom from floating crystal caves.", color: 0x64ffda, distance: 8, audio: "https://www.soundjay.com/misc/sounds/wind-chime-2.wav" },
+                            { name: "Windweaver's Compass", world: "Aethermoor", description: "Sky-bound cities drift on eternal winds above storm-wrapped seas. Wind-riders navigate between floating islands using enchanted compasses.", color: 0xff6b6b, distance: 12, audio: "https://www.soundjay.com/nature/sounds/wind.wav" },
+                            { name: "Memory Vessel", world: "Chronos Harbor", description: "A port city existing simultaneously across multiple timelines. Merchants trade memories and experiences from parallel lives.", color: 0x4ecdc4, distance: 16, audio: "https://www.soundjay.com/misc/sounds/clock-tick.wav" },
+                            { name: "Songbird Automaton", world: "Harmonic Gardens", description: "Mechanical gardens where clockwork creatures create music from morning dew and moonlight, tended by musician-gardeners.", color: 0xffe66d, distance: 20, audio: "https://www.soundjay.com/nature/sounds/birds.wav" }
                         ]
                     },
                     {
                         name: "Workshop Kepler-442",
                         artifacts: [
-                            { name: "Dreamcatcher Net", world: "Slumbering Depths", description: "Underwater cities of sleeping giants where dream-fishers harvest nightmares and pleasant visions with nets of woven starlight.", color: 0x9b59b6, distance: 18, audio: "https://www.soundjay.com/nature/sounds/water-bubbles.wav" },
-                            { name: "Flame Heart", world: "Ember Sanctuary", description: "A volcanic monastery where fire-keepers preserve the last flames of extinct civilizations in crystalline heart-shaped vessels.", color: 0xe74c3c, distance: 25, audio: "https://www.soundjay.com/nature/sounds/fire-burning.wav" },
-                            { name: "Star Map Scroll", world: "Constellation City", description: "A metropolis built on a giant celestial map where astrologer-architects design buildings that mirror star patterns.", color: 0x3498db, distance: 32, audio: "https://www.soundjay.com/misc/sounds/celestial.wav" }
+                            { name: "Dreamcatcher Net", world: "Slumbering Depths", description: "Underwater cities of sleeping giants where dream-fishers harvest nightmares and pleasant visions with nets of woven starlight.", color: 0x9b59b6, distance: 9, audio: "https://www.soundjay.com/nature/sounds/water-bubbles.wav" },
+                            { name: "Flame Heart", world: "Ember Sanctuary", description: "A volcanic monastery where fire-keepers preserve the last flames of extinct civilizations in crystalline heart-shaped vessels.", color: 0xe74c3c, distance: 13, audio: "https://www.soundjay.com/nature/sounds/fire-burning.wav" },
+                            { name: "Star Map Scroll", world: "Constellation City", description: "A metropolis built on a giant celestial map where astrologer-architects design buildings that mirror star patterns.", color: 0x3498db, distance: 17, audio: "https://www.soundjay.com/misc/sounds/celestial.wav" }
                         ]
                     },
                     {
                         name: "Workshop Trappist-1",
                         artifacts: [
-                            { name: "Growth Spiral", world: "Living Architecture", description: "Cities that grow like plants, with organic buildings that adapt and evolve. Architects plant seeds instead of laying foundations.", color: 0x2ecc71, distance: 20, audio: "https://www.soundjay.com/nature/sounds/forest.wav" },
-                            { name: "Echo Chamber", world: "Sound Realm", description: "A dimension where emotions become audible music and thoughts create visual symphonies. Silent beings communicate through pure resonance.", color: 0xf39c12, distance: 27, audio: "https://www.soundjay.com/misc/sounds/echo.wav" },
-                            { name: "Tide Turner", world: "Shifting Shores", description: "Beaches that exist in constant flux, where sand-shapers sculpt temporary cities that dissolve and reform with each tide.", color: 0x1abc9c, distance: 34, audio: "https://www.soundjay.com/nature/sounds/ocean-waves.wav" },
-                            { name: "Mirror Mask", world: "Reflection Valley", description: "A place where every surface is a mirror showing not your face, but your true nature. Mask-makers craft identities from reflected souls.", color: 0x8e44ad, distance: 41, audio: "https://www.soundjay.com/misc/sounds/mystic.wav" },
-                            { name: "Time Keeper", world: "Clockwork Canyon", description: "A vast mechanical landscape where time flows differently in each zone. Chronometer-citizens age at varying rates as they move through temporal districts.", color: 0xd35400, distance: 48, audio: "https://www.soundjay.com/misc/sounds/gears.wav" }
+                            { name: "Growth Spiral", world: "Living Architecture", description: "Cities that grow like plants, with organic buildings that adapt and evolve. Architects plant seeds instead of laying foundations.", color: 0x2ecc71, distance: 10, audio: "https://www.soundjay.com/nature/sounds/forest.wav" },
+                            { name: "Echo Chamber", world: "Sound Realm", description: "A dimension where emotions become audible music and thoughts create visual symphonies. Silent beings communicate through pure resonance.", color: 0xf39c12, distance: 14, audio: "https://www.soundjay.com/misc/sounds/echo.wav" },
+                            { name: "Tide Turner", world: "Shifting Shores", description: "Beaches that exist in constant flux, where sand-shapers sculpt temporary cities that dissolve and reform with each tide.", color: 0x1abc9c, distance: 18, audio: "https://www.soundjay.com/nature/sounds/ocean-waves.wav" },
+                            { name: "Mirror Mask", world: "Reflection Valley", description: "A place where every surface is a mirror showing not your face, but your true nature. Mask-makers craft identities from reflected souls.", color: 0x8e44ad, distance: 22, audio: "https://www.soundjay.com/misc/sounds/mystic.wav" },
+                            { name: "Time Keeper", world: "Clockwork Canyon", description: "A vast mechanical landscape where time flows differently in each zone. Chronometer-citizens age at varying rates as they move through temporal districts.", color: 0xd35400, distance: 26, audio: "https://www.soundjay.com/misc/sounds/gears.wav" }
                         ]
                     }
                 ];
@@ -507,15 +503,38 @@
                 this.artifacts = [];
                 this.orbits = [];
 
-                const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
-                const sunMaterial = new THREE.MeshLambertMaterial({ 
+                const sunGeometry = new THREE.SphereGeometry(3, 32, 32);
+                const sunMaterial = new THREE.MeshBasicMaterial({ 
                     color: 0xffff00,
                     emissive: 0xffaa00,
-                    emissiveIntensity: 0.3
+                    emissiveIntensity: 0.8
                 });
                 const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+                
+                // Add glow effect with a larger transparent sphere
+                const glowGeometry = new THREE.SphereGeometry(5, 32, 32);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffaa00,
+                    transparent: true,
+                    opacity: 0.2,
+                    side: THREE.BackSide
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                
+                // Create point light at the sun's position
+                const sunLight = new THREE.PointLight(0xffddaa, 2, 100);
+                sunLight.position.set(0, 0, 0);
+                sunLight.castShadow = true;
+                sunLight.shadow.mapSize.width = 1024;
+                sunLight.shadow.mapSize.height = 1024;
+                
                 sun.userData.isSun = true;
+                glow.userData.isSun = true;
+                sunLight.userData.isSun = true;
+                
                 this.scene.add(sun);
+                this.scene.add(glow);
+                this.scene.add(sunLight);
 
                 const system = this.solarSystems[index];
                 system.artifacts.forEach((artifactData, i) => {
@@ -531,13 +550,15 @@
                     this.scene.add(orbit);
                     this.orbits.push(orbit);
 
-                    const artifactGeometry = new THREE.BoxGeometry(3, 3, 3);
+                    const artifactGeometry = new THREE.IcosahedronGeometry(2);
                     const artifactMaterial = new THREE.MeshLambertMaterial({ 
                         color: artifactData.color,
                         emissive: artifactData.color,
-                        emissiveIntensity: 0.1
+                        emissiveIntensity: 0.05
                     });
                     const artifact = new THREE.Mesh(artifactGeometry, artifactMaterial);
+                    artifact.castShadow = true;
+                    artifact.receiveShadow = true;
                     
                     const angle = (i / system.artifacts.length) * Math.PI * 2;
                     artifact.position.x = Math.cos(angle) * artifactData.distance;
