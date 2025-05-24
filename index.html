@@ -665,8 +665,8 @@
     const bgMaterial = new THREE.MeshBasicMaterial({ 
         map: texture,
         side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0
+        transparent: false,
+        opacity: 1
     });
     
     this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
