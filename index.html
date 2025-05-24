@@ -3,386 +3,711 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Known Worlds</title>
+    <title>Artifact Gallery - Solar System</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            box-sizing: border-box;
+        }
+
+        body {
             font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a23 0%, #1a1a3a 100%);
+            color: white;
             overflow: hidden;
-            cursor: grab;
+            touch-action: none;
         }
-        
-        body:active {
-            cursor: grabbing;
-        }
-        
-        #container {
+
+        #canvas-container {
             position: relative;
             width: 100vw;
             height: 100vh;
         }
-        
+
         #info-panel {
-            position: absolute;
+            position: fixed;
             top: 20px;
-            left: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: 80vh;
             background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 300px;
-            border: 2px solid #4a90e2;
-            box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
-            z-index: 100;
-        }
-        
-        #detail-panel {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
-            color: white;
-            padding: 30px;
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            max-width: 500px;
-            border: 3px solid #4a90e2;
-            box-shadow: 0 0 30px rgba(74, 144, 226, 0.5);
-            display: none;
-            z-index: 200;
-            text-align: center;
+            padding: 20px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        #detail-panel h2 {
-            color: #4a90e2;
-            margin-top: 0;
+
+        #info-panel.visible {
+            transform: translateX(0);
         }
-        
-        #detail-panel img {
-            max-width: 100%;
-            border-radius: 10px;
-            margin: 15px 0;
+
+        #info-panel h2 {
+            color: #64ffda;
+            margin-bottom: 15px;
+            font-size: 1.5em;
         }
-        
-        .close-btn {
+
+        #info-panel p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+
+        #info-panel .close-btn {
             position: absolute;
-            top: 10px;
+            top: 15px;
             right: 15px;
             background: none;
             border: none;
-            color: #4a90e2;
+            color: #64ffda;
             font-size: 24px;
             cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.2s;
         }
-        
-        .close-btn:hover {
+
+        #info-panel .close-btn:hover {
+            background: rgba(100, 255, 218, 0.1);
+        }
+
+        #controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        select, button {
+            background: rgba(0, 0, 0, 0.8);
             color: white;
-        }
-        
-        .artifact-info {
-            margin: 15px 0;
-            line-height: 1.6;
-        }
-        
-        .music-player {
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(74, 144, 226, 0.1);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            padding: 10px 15px;
             border-radius: 8px;
-            border: 1px solid #4a90e2;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        
-        audio {
-            width: 100%;
-            margin-top: 10px;
+
+        select:hover, button:hover {
+            border-color: #64ffda;
+            background: rgba(100, 255, 218, 0.1);
         }
-        
-        .floating-text {
-            position: absolute;
-            color: rgba(255, 255, 255, 0.8);
+
+        #instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 300px;
             font-size: 12px;
-            pointer-events: none;
-            z-index: 50;
+            line-height: 1.4;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #64ffda;
+            font-size: 18px;
+            z-index: 2000;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            #info-panel {
+                width: calc(100vw - 40px);
+                right: 20px;
+                max-height: 60vh;
+                font-size: 14px;
+            }
+
+            #controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            select, button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            #instructions {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                max-width: none;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #info-panel {
+                width: calc(100vw - 20px);
+                right: 10px;
+                left: 10px;
+                max-height: 50vh;
+            }
+
+            #controls {
+                left: 10px;
+                top: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <div id="info-panel">
-            <h3>🏛️ Artifact Gallery</h3>
-            <p>Explore artifacts from fictional worlds!</p>
-            <p><strong>Controls:</strong><br>
-            • Click and drag to rotate<br>
-            • Scroll to zoom<br>
-            • Click artifacts for details</p>
-        </div>
-        
-        <div id="detail-panel">
-            <button class="close-btn">&times;</button>
-            <div id="detail-content"></div>
-        </div>
+    <div class="loading" id="loading">Loading Galaxy...</div>
+    
+    <div id="canvas-container"></div>
+    
+    <div id="controls">
+        <select id="solar-system-select">
+            <option value="0">Workshop Alpha Centauri</option>
+            <option value="1">Workshop Kepler-442</option>
+            <option value="2">Workshop Trappist-1</option>
+        </select>
+        <button id="reset-camera">Reset View</button>
+    </div>
+
+    <div id="info-panel">
+        <button class="close-btn" id="close-panel">&times;</button>
+        <h2 id="artifact-title">Artifact Title</h2>
+        <p id="artifact-description">Artifact description will appear here...</p>
+        <div id="artifact-images"></div>
+        <audio id="artifact-audio" controls style="width: 100%; margin-top: 15px; display: none; height: 30px;">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <div id="instructions">
+        <strong>Navigation:</strong><br>
+        • Click artifacts to explore worlds<br>
+        • Mouse/touch to orbit around<br>
+        • Scroll/pinch to zoom<br>
+        • Switch between workshop systems
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Scene setup
-        const container = document.getElementById('container');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        container.appendChild(renderer.domElement);
-        
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-        scene.add(ambientLight);
-        
-        const directionalLight = new THREE.DirectionalLight(0x4a90e2, 1);
-        directionalLight.position.set(10, 10, 5);
-        directionalLight.castShadow = true;
-        scene.add(directionalLight);
-        
-        const pointLight1 = new THREE.PointLight(0xff6b6b, 0.8, 20);
-        pointLight1.position.set(-10, 5, -5);
-        scene.add(pointLight1);
-        
-        const pointLight2 = new THREE.PointLight(0x4ecdc4, 0.8, 20);
-        pointLight2.position.set(10, -5, 5);
-        scene.add(pointLight2);
-        
-        // Sample artifact data
-        const artifactData = [
-            {
-                id: 1,
-                name: "Crystal of Aethermoor",
-                world: "The Floating Kingdoms",
-                position: [2, 3, -1],
-                color: 0x4ecdc4,
-                description: "A mystical crystal that keeps the floating islands of Aethermoor suspended in the clouds. Legend says it was forged by the Sky Druids in the age of eternal storms.",
-                details: "This artifact pulses with ancient magic, its faceted surface reflecting the endless sky. The people of Aethermoor believe that as long as the crystal remains whole, their kingdom will never fall to the earth below.",
-                musicDescription: "Ethereal wind chimes and distant thunder"
-            },
-            {
-                id: 2,
-                name: "Ember Crown",
-                world: "The Ashen Realms",
-                position: [-3, 1, 2],
-                color: 0xff6b6b,
-                description: "The crown of the last Fire King, still burning with eternal flames. It grants the wearer dominion over volcanic forces and the loyalty of flame spirits.",
-                details: "Forged in the heart of Mount Pyrothane, this crown never stops burning yet never consumes itself. The rubies embedded within were tears of the Fire Phoenix, crystallized by ancient magic.",
-                musicDescription: "Crackling flames and distant war drums"
-            },
-            {
-                id: 3,
-                name: "Void Compass",
-                world: "The Shadow Archipelago",
-                position: [0, -2, 3],
-                color: 0x9b59b6,
-                description: "A compass that points not north, but toward the darkest secrets of any realm. Used by shadow merchants to navigate between dimensions.",
-                details: "Its needle spins wildly in normal light but becomes steady in darkness. The compass was crafted by the Voidweavers, who exist between the spaces of reality itself.",
-                musicDescription: "Whispered secrets and cosmic ambience"
-            },
-            {
-                id: 4,
-                name: "Harmony Bell",
-                world: "The Singing Forests",
-                position: [-1, 0, -3],
-                color: 0x95e1d3,
-                description: "A bell that harmonizes with the natural world, allowing communication with all living things. Its song can heal wounds and mend broken hearts.",
-                details: "Cast from metals that fell from the stars, this bell resonates with the fundamental frequency of life itself. When rung, every creature within miles stops to listen to its perfect tone.",
-                musicDescription: "Gentle forest sounds and healing tones"
-            },
-            {
-                id: 5,
-                name: "Timekeeper's Hourglass",
-                world: "The Temporal Gardens",
-                position: [3, -1, 0],
-                color: 0xf39c12,
-                description: "An hourglass containing sand from the beginning and end of time. It can slow, speed up, or even reverse the flow of time in small areas.",
-                details: "The sand within shifts between colors as time flows - golden for past, silver for present, and pearl for future. Master chrononauts use it to tend gardens that bloom across centuries.",
-                musicDescription: "Ticking clocks and temporal echoes"
-            }
-        ];
-        
-        // Create artifacts
-        const artifacts = [];
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        
-        artifactData.forEach(data => {
-            const group = new THREE.Group();
-            
-            // Main artifact geometry (different shapes for variety)
-            let geometry;
-            switch(data.id % 4) {
-                case 0:
-                    geometry = new THREE.OctahedronGeometry(0.8);
-                    break;
-                case 1:
-                    geometry = new THREE.DodecahedronGeometry(0.7);
-                    break;
-                case 2:
-                    geometry = new THREE.IcosahedronGeometry(0.8);
-                    break;
-                default:
-                    geometry = new THREE.TetrahedronGeometry(0.9);
-            }
-            
-            const material = new THREE.MeshPhongMaterial({ 
-                color: data.color,
-                transparent: true,
-                opacity: 0.8,
-                shininess: 100
-            });
-            
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            
-            // Add glow effect
-            const glowGeometry = geometry.clone();
-            const glowMaterial = new THREE.MeshBasicMaterial({
-                color: data.color,
-                transparent: true,
-                opacity: 0.3,
-                side: THREE.BackSide
-            });
-            const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
-            glowMesh.scale.multiplyScalar(1.2);
-            
-            group.add(mesh);
-            group.add(glowMesh);
-            
-            // Position
-            group.position.set(...data.position);
-            
-            // Store data
-            group.userData = data;
-            mesh.userData = data;
-            
-            scene.add(group);
-            artifacts.push(group);
-        });
-        
-        // Camera controls
-        camera.position.set(5, 3, 8);
-        camera.lookAt(0, 0, 0);
-        
-        let isMouseDown = false;
-        let mouseX = 0, mouseY = 0;
-        let targetRotationX = 0, targetRotationY = 0;
-        let currentRotationX = 0, currentRotationY = 0;
-        
-        // Mouse controls
-        container.addEventListener('mousedown', (e) => {
-            isMouseDown = true;
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-        
-        container.addEventListener('mousemove', (e) => {
-            if (isMouseDown) {
-                const deltaX = e.clientX - mouseX;
-                const deltaY = e.clientY - mouseY;
+        class ArtifactGallery {
+            constructor() {
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.artifacts = [];
+                this.orbits = [];
+                this.selectedArtifact = null;
+                this.isTransitioning = false;
+                this.worldBackground = null;
+                this.stars = null;
                 
-                targetRotationY += deltaX * 0.01;
-                targetRotationX += deltaY * 0.01;
+                // Touch handling
+                this.touchStart = null;
+                this.isRotating = false;
+                this.rotationSpeed = 0.002;
+                this.cameraDistance = 60;
+                this.cameraAngle = { theta: 0, phi: Math.PI * 0.3 };
                 
-                mouseX = e.clientX;
-                mouseY = e.clientY;
+                this.init();
+                this.setupEventListeners();
+                this.createSolarSystems();
+                this.animate();
+                
+                setTimeout(() => {
+                    const loading = document.getElementById('loading');
+                    if (loading) loading.style.display = 'none';
+                }, 1000);
             }
-        });
-        
-        container.addEventListener('mouseup', () => {
-            isMouseDown = false;
-        });
-        
-        // Zoom
-        container.addEventListener('wheel', (e) => {
-            const zoom = e.deltaY * 0.01;
-            camera.position.multiplyScalar(1 + zoom * 0.1);
-        });
-        
-        // Click detection
-        container.addEventListener('click', (e) => {
-            if (isMouseDown) return; // Don't trigger on drag
-            
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-            
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(artifacts.map(a => a.children[0]));
-            
-            if (intersects.length > 0) {
-                showArtifactDetails(intersects[0].object.userData);
+
+            init() {
+                const container = document.getElementById('canvas-container');
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setClearColor(0x000011);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                container.appendChild(this.renderer.domElement);
+
+                this.createStarField();
+
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+                this.scene.add(ambientLight);
+
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                directionalLight.position.set(10, 10, 5);
+                directionalLight.castShadow = true;
+                this.scene.add(directionalLight);
+
+                this.updateCameraPosition();
             }
-        });
-        
-        // Detail panel functions
-        function showArtifactDetails(data) {
-            const panel = document.getElementById('detail-panel');
-            const content = document.getElementById('detail-content');
-            
-            content.innerHTML = `
-                <h2>${data.name}</h2>
-                <div class="artifact-info">
-                    <p><strong>World:</strong> ${data.world}</p>
-                    <p>${data.description}</p>
-                    <hr style="border-color: #4a90e2; margin: 20px 0;">
-                    <p><em>${data.details}</em></p>
-                </div>
-                <div class="music-player">
-                    <p><strong>🎵 Ambient Sounds:</strong> ${data.musicDescription}</p>
-                    <p><em>Note: In a real implementation, you would add actual audio files here!</em></p>
-                </div>
-            `;
-            
-            panel.style.display = 'block';
+
+            createStarField() {
+                const starGeometry = new THREE.BufferGeometry();
+                const starCount = 2000;
+                const positions = new Float32Array(starCount * 3);
+                
+                for (let i = 0; i < starCount * 3; i += 3) {
+                    positions[i] = (Math.random() - 0.5) * 400;
+                    positions[i + 1] = (Math.random() - 0.5) * 400;
+                    positions[i + 2] = (Math.random() - 0.5) * 400;
+                }
+                
+                starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                
+                const starMaterial = new THREE.PointsMaterial({
+                    color: 0xffffff,
+                    size: 1,
+                    sizeAttenuation: false
+                });
+                
+                this.stars = new THREE.Points(starGeometry, starMaterial);
+                this.scene.add(this.stars);
+            }
+
+            updateCameraPosition() {
+                const x = this.cameraDistance * Math.sin(this.cameraAngle.phi) * Math.cos(this.cameraAngle.theta);
+                const y = this.cameraDistance * Math.cos(this.cameraAngle.phi);
+                const z = this.cameraDistance * Math.sin(this.cameraAngle.phi) * Math.sin(this.cameraAngle.theta);
+                
+                this.camera.position.set(x, y, z);
+                this.camera.lookAt(0, 0, 0);
+            }
+
+            setupEventListeners() {
+                window.addEventListener('resize', () => this.onWindowResize());
+                
+                this.renderer.domElement.addEventListener('mousedown', (e) => this.onMouseDown(e));
+                this.renderer.domElement.addEventListener('mousemove', (e) => this.onMouseMove(e));
+                this.renderer.domElement.addEventListener('mouseup', () => this.onMouseUp());
+                this.renderer.domElement.addEventListener('wheel', (e) => this.onWheel(e));
+                this.renderer.domElement.addEventListener('click', (e) => this.onClick(e));
+                
+                this.renderer.domElement.addEventListener('touchstart', (e) => this.onTouchStart(e));
+                this.renderer.domElement.addEventListener('touchmove', (e) => this.onTouchMove(e));
+                this.renderer.domElement.addEventListener('touchend', () => this.onTouchEnd());
+                
+                this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+
+                document.getElementById('solar-system-select').addEventListener('change', (e) => {
+                    this.switchSolarSystem(parseInt(e.target.value));
+                });
+
+                document.getElementById('reset-camera').addEventListener('click', () => {
+                    this.resetCamera();
+                });
+
+                document.getElementById('close-panel').addEventListener('click', () => {
+                    this.hideInfoPanel();
+                });
+            }
+
+            onMouseDown(event) {
+                if (this.isTransitioning) return;
+                this.isRotating = true;
+                this.touchStart = { x: event.clientX, y: event.clientY };
+            }
+
+            onMouseMove(event) {
+                if (!this.isRotating || this.isTransitioning) return;
+                
+                const deltaX = event.clientX - this.touchStart.x;
+                const deltaY = event.clientY - this.touchStart.y;
+                
+                this.cameraAngle.theta -= deltaX * this.rotationSpeed;
+                this.cameraAngle.phi = Math.max(0.1, Math.min(Math.PI - 0.1, this.cameraAngle.phi + deltaY * this.rotationSpeed));
+                
+                this.updateCameraPosition();
+                
+                this.touchStart = { x: event.clientX, y: event.clientY };
+            }
+
+            onMouseUp() {
+                this.isRotating = false;
+            }
+
+            onTouchStart(event) {
+                if (this.isTransitioning) return;
+                event.preventDefault();
+                if (event.touches.length === 1) {
+                    this.isRotating = true;
+                    this.touchStart = { 
+                        x: event.touches[0].clientX, 
+                        y: event.touches[0].clientY 
+                    };
+                }
+            }
+
+            onTouchMove(event) {
+                if (!this.isRotating || this.isTransitioning) return;
+                event.preventDefault();
+                
+                if (event.touches.length === 1) {
+                    const deltaX = event.touches[0].clientX - this.touchStart.x;
+                    const deltaY = event.touches[0].clientY - this.touchStart.y;
+                    
+                    this.cameraAngle.theta -= deltaX * this.rotationSpeed;
+                    this.cameraAngle.phi = Math.max(0.1, Math.min(Math.PI - 0.1, this.cameraAngle.phi + deltaY * this.rotationSpeed));
+                    
+                    this.updateCameraPosition();
+                    
+                    this.touchStart = { 
+                        x: event.touches[0].clientX, 
+                        y: event.touches[0].clientY 
+                    };
+                }
+            }
+
+            onTouchEnd() {
+                this.isRotating = false;
+            }
+
+            onWheel(event) {
+                if (this.isTransitioning) return;
+                event.preventDefault();
+                
+                this.cameraDistance += event.deltaY * 0.01;
+                this.cameraDistance = Math.max(20, Math.min(100, this.cameraDistance));
+                this.updateCameraPosition();
+            }
+
+            onClick(event) {
+                if (this.isTransitioning) return;
+                
+                const mouse = new THREE.Vector2();
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, this.camera);
+
+                const intersects = raycaster.intersectObjects(this.artifacts);
+                if (intersects.length > 0) {
+                    this.selectArtifact(intersects[0].object);
+                } else {
+                    let closestArtifact = null;
+                    let closestDistance = Infinity;
+                    
+                    this.artifacts.forEach(artifact => {
+                        const screenPos = artifact.position.clone();
+                        screenPos.project(this.camera);
+                        
+                        const screenX = (screenPos.x + 1) * window.innerWidth / 2;
+                        const screenY = (-screenPos.y + 1) * window.innerHeight / 2;
+                        
+                        const distance = Math.sqrt(
+                            Math.pow(event.clientX - screenX, 2) + 
+                            Math.pow(event.clientY - screenY, 2)
+                        );
+                        
+                        if (distance < 50 && distance < closestDistance) {
+                            closestDistance = distance;
+                            closestArtifact = artifact;
+                        }
+                    });
+                    
+                    if (closestArtifact) {
+                        this.selectArtifact(closestArtifact);
+                    }
+                }
+            }
+
+            createSolarSystems() {
+                this.solarSystems = [
+                    {
+                        name: "Workshop Alpha Centauri",
+                        artifacts: [
+                            { name: "The Crystal Codex", world: "Luminara", description: "A mystical realm where knowledge crystallizes into tangible gems that pulse with inner light. Scholars mine wisdom from floating crystal caves.", color: 0x64ffda, distance: 15, background: "667eea-764ba2", audio: "https://www.soundjay.com/misc/sounds/wind-chime-2.wav" },
+                            { name: "Windweaver's Compass", world: "Aethermoor", description: "Sky-bound cities drift on eternal winds above storm-wrapped seas. Wind-riders navigate between floating islands using enchanted compasses.", color: 0xff6b6b, distance: 22, background: "74b9ff-0984e3", audio: "https://www.soundjay.com/nature/sounds/wind.wav" },
+                            { name: "Memory Vessel", world: "Chronos Harbor", description: "A port city existing simultaneously across multiple timelines. Merchants trade memories and experiences from parallel lives.", color: 0x4ecdc4, distance: 29, background: "a29bfe-6c5ce7", audio: "https://www.soundjay.com/misc/sounds/clock-tick.wav" },
+                            { name: "Songbird Automaton", world: "Harmonic Gardens", description: "Mechanical gardens where clockwork creatures create music from morning dew and moonlight, tended by musician-gardeners.", color: 0xffe66d, distance: 36, background: "fd79a8-e84393", audio: "https://www.soundjay.com/nature/sounds/birds.wav" }
+                        ]
+                    },
+                    {
+                        name: "Workshop Kepler-442",
+                        artifacts: [
+                            { name: "Dreamcatcher Net", world: "Slumbering Depths", description: "Underwater cities of sleeping giants where dream-fishers harvest nightmares and pleasant visions with nets of woven starlight.", color: 0x9b59b6, distance: 18, background: "00cec9-55a3ff", audio: "https://www.soundjay.com/nature/sounds/water-bubbles.wav" },
+                            { name: "Flame Heart", world: "Ember Sanctuary", description: "A volcanic monastery where fire-keepers preserve the last flames of extinct civilizations in crystalline heart-shaped vessels.", color: 0xe74c3c, distance: 25, background: "ff7675-d63031", audio: "https://www.soundjay.com/nature/sounds/fire-burning.wav" },
+                            { name: "Star Map Scroll", world: "Constellation City", description: "A metropolis built on a giant celestial map where astrologer-architects design buildings that mirror star patterns.", color: 0x3498db, distance: 32, background: "74b9ff-0984e3", audio: "https://www.soundjay.com/misc/sounds/celestial.wav" }
+                        ]
+                    },
+                    {
+                        name: "Workshop Trappist-1",
+                        artifacts: [
+                            { name: "Growth Spiral", world: "Living Architecture", description: "Cities that grow like plants, with organic buildings that adapt and evolve. Architects plant seeds instead of laying foundations.", color: 0x2ecc71, distance: 20, background: "00b894-00a085", audio: "https://www.soundjay.com/nature/sounds/forest.wav" },
+                            { name: "Echo Chamber", world: "Sound Realm", description: "A dimension where emotions become audible music and thoughts create visual symphonies. Silent beings communicate through pure resonance.", color: 0xf39c12, distance: 27, background: "fdcb6e-e17055", audio: "https://www.soundjay.com/misc/sounds/echo.wav" },
+                            { name: "Tide Turner", world: "Shifting Shores", description: "Beaches that exist in constant flux, where sand-shapers sculpt temporary cities that dissolve and reform with each tide.", color: 0x1abc9c, distance: 34, background: "81ecec-74b9ff", audio: "https://www.soundjay.com/nature/sounds/ocean-waves.wav" },
+                            { name: "Mirror Mask", world: "Reflection Valley", description: "A place where every surface is a mirror showing not your face, but your true nature. Mask-makers craft identities from reflected souls.", color: 0x8e44ad, distance: 41, background: "a29bfe-6c5ce7", audio: "https://www.soundjay.com/misc/sounds/mystic.wav" },
+                            { name: "Time Keeper", world: "Clockwork Canyon", description: "A vast mechanical landscape where time flows differently in each zone. Chronometer-citizens age at varying rates as they move through temporal districts.", color: 0xd35400, distance: 48, background: "fab1a0-e17055", audio: "https://www.soundjay.com/misc/sounds/gears.wav" }
+                        ]
+                    }
+                ];
+
+                this.switchSolarSystem(0);
+            }
+
+            switchSolarSystem(index) {
+                this.artifacts.forEach(artifact => this.scene.remove(artifact));
+                this.orbits.forEach(orbit => this.scene.remove(orbit));
+                this.artifacts = [];
+                this.orbits = [];
+
+                const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
+                const sunMaterial = new THREE.MeshLambertMaterial({ 
+                    color: 0xffff00,
+                    emissive: 0xffaa00,
+                    emissiveIntensity: 0.3
+                });
+                const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+                this.scene.add(sun);
+
+                const system = this.solarSystems[index];
+                system.artifacts.forEach((artifactData, i) => {
+                    const orbitGeometry = new THREE.RingGeometry(artifactData.distance - 0.2, artifactData.distance + 0.2, 64);
+                    const orbitMaterial = new THREE.MeshLambertMaterial({ 
+                        color: 0x444444, 
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        opacity: 0.3
+                    });
+                    const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
+                    orbit.rotation.x = Math.PI / 2;
+                    this.scene.add(orbit);
+                    this.orbits.push(orbit);
+
+                    const artifactGeometry = new THREE.BoxGeometry(3, 3, 3);
+                    const artifactMaterial = new THREE.MeshLambertMaterial({ 
+                        color: artifactData.color,
+                        emissive: artifactData.color,
+                        emissiveIntensity: 0.1
+                    });
+                    const artifact = new THREE.Mesh(artifactGeometry, artifactMaterial);
+                    
+                    const angle = (i / system.artifacts.length) * Math.PI * 2;
+                    artifact.position.x = Math.cos(angle) * artifactData.distance;
+                    artifact.position.z = Math.sin(angle) * artifactData.distance;
+                    artifact.position.y = 0;
+                    
+                    artifact.userData = artifactData;
+                    this.scene.add(artifact);
+                    this.artifacts.push(artifact);
+                });
+
+                this.resetCamera();
+            }
+
+            selectArtifact(artifact) {
+                if (this.isTransitioning) return;
+                
+                this.selectedArtifact = artifact;
+                this.isTransitioning = true;
+
+                this.createWorldBackground(artifact.userData.background);
+
+                const targetPos = artifact.position.clone();
+                const cameraTargetPos = targetPos.clone().add(new THREE.Vector3(5, 3, 5));
+
+                this.artifacts.forEach(otherArtifact => {
+                    if (otherArtifact !== artifact) {
+                        otherArtifact.material.transparent = true;
+                        const fadeOut = () => {
+                            otherArtifact.material.opacity = Math.max(0, otherArtifact.material.opacity - 0.02);
+                            if (otherArtifact.material.opacity > 0) {
+                                requestAnimationFrame(fadeOut);
+                            }
+                        };
+                        fadeOut();
+                    }
+                });
+
+                this.orbits.forEach(orbit => {
+                    orbit.material.transparent = true;
+                    const fadeOut = () => {
+                        orbit.material.opacity = Math.max(0, orbit.material.opacity - 0.02);
+                        if (orbit.material.opacity > 0) {
+                            requestAnimationFrame(fadeOut);
+                        }
+                    };
+                    fadeOut();
+                });
+
+                if (this.stars) {
+                    this.stars.material.transparent = true;
+                    const fadeOut = () => {
+                        this.stars.material.opacity = Math.max(0, this.stars.material.opacity - 0.02);
+                        if (this.stars.material.opacity > 0) {
+                            requestAnimationFrame(fadeOut);
+                        }
+                    };
+                    fadeOut();
+                }
+
+                const startPos = this.camera.position.clone();
+                const startTime = Date.now();
+                const duration = 1500;
+
+                const animateCamera = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+                    this.camera.position.lerpVectors(startPos, cameraTargetPos, easeProgress);
+                    this.camera.lookAt(targetPos);
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animateCamera);
+                    } else {
+                        this.isTransitioning = false;
+                        this.showInfoPanel(artifact.userData);
+                    }
+                };
+
+                animateCamera();
+            }
+
+            createWorldBackground(backgroundStyle) {
+                const bgGeometry = new THREE.SphereGeometry(100, 32, 32);
+                const canvas = document.createElement('canvas');
+                canvas.width = 512;
+                canvas.height = 512;
+                const ctx = canvas.getContext('2d');
+                
+                const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+                const colors = backgroundStyle.split('-');
+                gradient.addColorStop(0, '#' + colors[0]);
+                gradient.addColorStop(1, '#' + colors[1]);
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 512, 512);
+                
+                const texture = new THREE.CanvasTexture(canvas);
+                const bgMaterial = new THREE.MeshBasicMaterial({ 
+                    map: texture,
+                    side: THREE.BackSide,
+                    transparent: true,
+                    opacity: 0
+                });
+                
+                this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
+                this.scene.add(this.worldBackground);
+                
+                const fadeIn = () => {
+                    this.worldBackground.material.opacity = Math.min(0.6, this.worldBackground.material.opacity + 0.02);
+                    if (this.worldBackground.material.opacity < 0.6) {
+                        requestAnimationFrame(fadeIn);
+                    }
+                };
+                fadeIn();
+            }
+
+            showInfoPanel(artifactData) {
+                const panel = document.getElementById('info-panel');
+                const title = document.getElementById('artifact-title');
+                const description = document.getElementById('artifact-description');
+                const audio = document.getElementById('artifact-audio');
+
+                title.textContent = `${artifactData.name} - ${artifactData.world}`;
+                description.textContent = artifactData.description;
+
+                if (artifactData.audio) {
+                    audio.style.display = 'block';
+                    audio.src = artifactData.audio;
+                    audio.volume = 0.3;
+                    audio.loop = true;
+                    
+                    audio.play().catch(e => {
+                        console.log('Autoplay prevented, user interaction required');
+                    });
+                }
+                
+                panel.classList.add('visible');
+            }
+
+            hideInfoPanel() {
+                const panel = document.getElementById('info-panel');
+                const audio = document.getElementById('artifact-audio');
+                
+                audio.pause();
+                audio.currentTime = 0;
+                
+                panel.classList.remove('visible');
+                
+                if (this.selectedArtifact) {
+                    this.selectedArtifact = null;
+                    
+                    if (this.worldBackground) {
+                        this.scene.remove(this.worldBackground);
+                        this.worldBackground = null;
+                    }
+                    
+                    this.artifacts.forEach(artifact => {
+                        artifact.material.transparent = false;
+                        artifact.material.opacity = 1;
+                    });
+                    
+                    this.orbits.forEach(orbit => {
+                        orbit.material.transparent = true;
+                        orbit.material.opacity = 0.3;
+                    });
+                    
+                    if (this.stars) {
+                        this.stars.material.transparent = false;
+                        this.stars.material.opacity = 1;
+                    }
+                    
+                    this.resetCamera();
+                }
+            }
+
+            resetCamera() {
+                if (this.isTransitioning) return;
+                
+                this.cameraDistance = 60;
+                this.cameraAngle = { theta: 0, phi: Math.PI * 0.3 };
+                this.updateCameraPosition();
+                this.hideInfoPanel();
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                this.artifacts.forEach((artifact, i) => {
+                    artifact.rotation.y += 0.01;
+                    
+                    if (!this.selectedArtifact || this.selectedArtifact !== artifact) {
+                        const angle = Date.now() * 0.0005 + (i * Math.PI * 2 / this.artifacts.length);
+                        const distance = artifact.userData.distance;
+                        artifact.position.x = Math.cos(angle) * distance;
+                        artifact.position.z = Math.sin(angle) * distance;
+                    }
+                });
+
+                if (this.selectedArtifact && !this.isTransitioning) {
+                    this.selectedArtifact.rotation.y += 0.005;
+                }
+
+                this.renderer.render(this.scene, this.camera);
+            }
+
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
         }
-        
-        // Close panel
-        document.querySelector('.close-btn').addEventListener('click', () => {
-            document.getElementById('detail-panel').style.display = 'none';
-        });
-        
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            // Smooth camera rotation
-            currentRotationX += (targetRotationX - currentRotationX) * 0.05;
-            currentRotationY += (targetRotationY - currentRotationY) * 0.05;
-            
-            // Rotate scene
-            scene.rotation.x = currentRotationX;
-            scene.rotation.y = currentRotationY;
-            
-            // Animate artifacts
-            artifacts.forEach((artifact, i) => {
-                artifact.rotation.y += 0.01;
-                artifact.rotation.x += 0.005;
-                
-                // Gentle floating motion
-                artifact.position.y += Math.sin(Date.now() * 0.001 + i) * 0.002;
-            });
-            
-            renderer.render(scene, camera);
-        }
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-        
-        // Start animation
-        animate();
+
+        new ArtifactGallery();
     </script>
 </body>
 </html>
