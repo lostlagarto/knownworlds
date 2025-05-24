@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artifact Gallery - Fictional Worlds</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            cursor: grab;
+        }
+        
+        body:active {
+            cursor: grabbing;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 300px;
+            border: 2px solid #4a90e2;
+            box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+            z-index: 100;
+        }
+        
+        #detail-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            border: 3px solid #4a90e2;
+            box-shadow: 0 0 30px rgba(74, 144, 226, 0.5);
+            display: none;
+            z-index: 200;
+            text-align: center;
+        }
+        
+        #detail-panel h2 {
+            color: #4a90e2;
+            margin-top: 0;
+        }
+        
+        #detail-panel img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #4a90e2;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .close-btn:hover {
+            color: white;
+        }
+        
+        .artifact-info {
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        
+        .music-player {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(74, 144, 226, 0.1);
+            border-radius: 8px;
+            border: 1px solid #4a90e2;
+        }
+        
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .floating-text {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="info-panel">
+            <h3>🏛️ Artifact Gallery</h3>
+            <p>Explore artifacts from fictional worlds!</p>
+            <p><strong>Controls:</strong><br>
+            • Click and drag to rotate<br>
+            • Scroll to zoom<br>
+            • Click artifacts for details</p>
+        </div>
+        
+        <div id="detail-panel">
+            <button class="close-btn">&times;</button>
+            <div id="detail-content"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const container = document.getElementById('container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0x4a90e2, 1);
+        directionalLight.position.set(10, 10, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        const pointLight1 = new THREE.PointLight(0xff6b6b, 0.8, 20);
+        pointLight1.position.set(-10, 5, -5);
+        scene.add(pointLight1);
+        
+        const pointLight2 = new THREE.PointLight(0x4ecdc4, 0.8, 20);
+        pointLight2.position.set(10, -5, 5);
+        scene.add(pointLight2);
+        
+        // Sample artifact data
+        const artifactData = [
+            {
+                id: 1,
+                name: "Crystal of Aethermoor",
+                world: "The Floating Kingdoms",
+                position: [2, 3, -1],
+                color: 0x4ecdc4,
+                description: "A mystical crystal that keeps the floating islands of Aethermoor suspended in the clouds. Legend says it was forged by the Sky Druids in the age of eternal storms.",
+                details: "This artifact pulses with ancient magic, its faceted surface reflecting the endless sky. The people of Aethermoor believe that as long as the crystal remains whole, their kingdom will never fall to the earth below.",
+                musicDescription: "Ethereal wind chimes and distant thunder"
+            },
+            {
+                id: 2,
+                name: "Ember Crown",
+                world: "The Ashen Realms",
+                position: [-3, 1, 2],
+                color: 0xff6b6b,
+                description: "The crown of the last Fire King, still burning with eternal flames. It grants the wearer dominion over volcanic forces and the loyalty of flame spirits.",
+                details: "Forged in the heart of Mount Pyrothane, this crown never stops burning yet never consumes itself. The rubies embedded within were tears of the Fire Phoenix, crystallized by ancient magic.",
+                musicDescription: "Crackling flames and distant war drums"
+            },
+            {
+                id: 3,
+                name: "Void Compass",
+                world: "The Shadow Archipelago",
+                position: [0, -2, 3],
+                color: 0x9b59b6,
+                description: "A compass that points not north, but toward the darkest secrets of any realm. Used by shadow merchants to navigate between dimensions.",
+                details: "Its needle spins wildly in normal light but becomes steady in darkness. The compass was crafted by the Voidweavers, who exist between the spaces of reality itself.",
+                musicDescription: "Whispered secrets and cosmic ambience"
+            },
+            {
+                id: 4,
+                name: "Harmony Bell",
+                world: "The Singing Forests",
+                position: [-1, 0, -3],
+                color: 0x95e1d3,
+                description: "A bell that harmonizes with the natural world, allowing communication with all living things. Its song can heal wounds and mend broken hearts.",
+                details: "Cast from metals that fell from the stars, this bell resonates with the fundamental frequency of life itself. When rung, every creature within miles stops to listen to its perfect tone.",
+                musicDescription: "Gentle forest sounds and healing tones"
+            },
+            {
+                id: 5,
+                name: "Timekeeper's Hourglass",
+                world: "The Temporal Gardens",
+                position: [3, -1, 0],
+                color: 0xf39c12,
+                description: "An hourglass containing sand from the beginning and end of time. It can slow, speed up, or even reverse the flow of time in small areas.",
+                details: "The sand within shifts between colors as time flows - golden for past, silver for present, and pearl for future. Master chrononauts use it to tend gardens that bloom across centuries.",
+                musicDescription: "Ticking clocks and temporal echoes"
+            }
+        ];
+        
+        // Create artifacts
+        const artifacts = [];
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        artifactData.forEach(data => {
+            const group = new THREE.Group();
+            
+            // Main artifact geometry (different shapes for variety)
+            let geometry;
+            switch(data.id % 4) {
+                case 0:
+                    geometry = new THREE.OctahedronGeometry(0.8);
+                    break;
+                case 1:
+                    geometry = new THREE.DodecahedronGeometry(0.7);
+                    break;
+                case 2:
+                    geometry = new THREE.IcosahedronGeometry(0.8);
+                    break;
+                default:
+                    geometry = new THREE.TetrahedronGeometry(0.9);
+            }
+            
+            const material = new THREE.MeshPhongMaterial({ 
+                color: data.color,
+                transparent: true,
+                opacity: 0.8,
+                shininess: 100
+            });
+            
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            
+            // Add glow effect
+            const glowGeometry = geometry.clone();
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: data.color,
+                transparent: true,
+                opacity: 0.3,
+                side: THREE.BackSide
+            });
+            const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+            glowMesh.scale.multiplyScalar(1.2);
+            
+            group.add(mesh);
+            group.add(glowMesh);
+            
+            // Position
+            group.position.set(...data.position);
+            
+            // Store data
+            group.userData = data;
+            mesh.userData = data;
+            
+            scene.add(group);
+            artifacts.push(group);
+        });
+        
+        // Camera controls
+        camera.position.set(5, 3, 8);
+        camera.lookAt(0, 0, 0);
+        
+        let isMouseDown = false;
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+        let currentRotationX = 0, currentRotationY = 0;
+        
+        // Mouse controls
+        container.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        container.addEventListener('mousemove', (e) => {
+            if (isMouseDown) {
+                const deltaX = e.clientX - mouseX;
+                const deltaY = e.clientY - mouseY;
+                
+                targetRotationY += deltaX * 0.01;
+                targetRotationX += deltaY * 0.01;
+                
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+        });
+        
+        container.addEventListener('mouseup', () => {
+            isMouseDown = false;
+        });
+        
+        // Zoom
+        container.addEventListener('wheel', (e) => {
+            const zoom = e.deltaY * 0.01;
+            camera.position.multiplyScalar(1 + zoom * 0.1);
+        });
+        
+        // Click detection
+        container.addEventListener('click', (e) => {
+            if (isMouseDown) return; // Don't trigger on drag
+            
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(artifacts.map(a => a.children[0]));
+            
+            if (intersects.length > 0) {
+                showArtifactDetails(intersects[0].object.userData);
+            }
+        });
+        
+        // Detail panel functions
+        function showArtifactDetails(data) {
+            const panel = document.getElementById('detail-panel');
+            const content = document.getElementById('detail-content');
+            
+            content.innerHTML = `
+                <h2>${data.name}</h2>
+                <div class="artifact-info">
+                    <p><strong>World:</strong> ${data.world}</p>
+                    <p>${data.description}</p>
+                    <hr style="border-color: #4a90e2; margin: 20px 0;">
+                    <p><em>${data.details}</em></p>
+                </div>
+                <div class="music-player">
+                    <p><strong>🎵 Ambient Sounds:</strong> ${data.musicDescription}</p>
+                    <p><em>Note: In a real implementation, you would add actual audio files here!</em></p>
+                </div>
+            `;
+            
+            panel.style.display = 'block';
+        }
+        
+        // Close panel
+        document.querySelector('.close-btn').addEventListener('click', () => {
+            document.getElementById('detail-panel').style.display = 'none';
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Smooth camera rotation
+            currentRotationX += (targetRotationX - currentRotationX) * 0.05;
+            currentRotationY += (targetRotationY - currentRotationY) * 0.05;
+            
+            // Rotate scene
+            scene.rotation.x = currentRotationX;
+            scene.rotation.y = currentRotationY;
+            
+            // Animate artifacts
+            artifacts.forEach((artifact, i) => {
+                artifact.rotation.y += 0.01;
+                artifact.rotation.x += 0.005;
+                
+                // Gentle floating motion
+                artifact.position.y += Math.sin(Date.now() * 0.001 + i) * 0.002;
+            });
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
