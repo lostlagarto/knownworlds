@@ -558,7 +558,7 @@
                 const cameraTargetPos = targetPos.clone().add(new THREE.Vector3(5, 3, 5));
 
                 this.artifacts.forEach(otherArtifact => {
-                    if (otherArtifact !== artifact) {
+                    if (otherArtifact !== artifact && !otherArtifact.userData.isBackground) {
                         otherArtifact.material.transparent = true;
                         const fadeOut = () => {
                             otherArtifact.material.opacity = Math.max(0, otherArtifact.material.opacity - 0.02);
@@ -630,34 +630,32 @@
 
 createWorldBackground(imageUrl) {
     // Create a flat plane
-    const bgGeometry = new THREE.PlaneGeometry(40, 30);
+    const bgGeometry = new THREE.PlaneGeometry(60, 40);
     
     // Load the custom image
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load(imageUrl);
+    const texture = textureLoader.load(imageUrl, () => {
+        console.log('Background image loaded successfully');
+    }, undefined, (error) => {
+        console.log('Error loading background image:', error);
+    });
     
     const bgMaterial = new THREE.MeshBasicMaterial({ 
         map: texture,
         side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0
+        transparent: false, // Start non-transparent
+        opacity: 1
     });
     
     this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
+    this.worldBackground.userData.isBackground = true; // Mark it as background
     
-    // Position it far behind everything at origin
-    this.worldBackground.position.set(0, 0, -50);
+    // Position it far behind everything
+    this.worldBackground.position.set(0, 0, -80);
     
     this.scene.add(this.worldBackground);
     
-    // Fade in background
-    const fadeIn = () => {
-        this.worldBackground.material.opacity = Math.min(0.7, this.worldBackground.material.opacity + 0.02);
-        if (this.worldBackground.material.opacity < 0.7) {
-            requestAnimationFrame(fadeIn);
-        }
-    };
-    fadeIn();
+    console.log('Background plane added to scene');
 }
 
             showInfoPanel(artifactData) {
