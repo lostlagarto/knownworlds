@@ -679,7 +679,8 @@ this.worldBackground.position.set(
     artifactPos.y,      // Same height
     artifactPos.z - 10  // Behind the artifact
 );
-    
+    this.worldBackground.lookAt(this.camera.position);
+                
     this.scene.add(this.worldBackground);
     
     console.log('Background plane added to scene');
