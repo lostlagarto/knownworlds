@@ -665,8 +665,8 @@
     const bgMaterial = new THREE.MeshBasicMaterial({ 
         map: texture,
         side: THREE.DoubleSide,
-        transparent: false,
-        opacity: 1
+        transparent: true,
+        opacity: 0
     });
     
     this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
@@ -682,7 +682,16 @@ this.worldBackground.position.set(
     this.worldBackground.lookAt(this.camera.position);
                 
     this.scene.add(this.worldBackground);
-    
+
+    // Fade in the background smoothly
+    const fadeIn = () => {
+        this.worldBackground.material.opacity = Math.min(0.9, this.worldBackground.material.opacity + 0.02);
+        if (this.worldBackground.material.opacity < 0.9) {
+            requestAnimationFrame(fadeIn);
+        }
+    };
+    fadeIn();
+                
     console.log('Background plane added to scene');
 }
 
