@@ -102,28 +102,28 @@
             background: rgba(100, 255, 218, 0.1);
         }
 
-#return-button {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 1000;
-}
+        #return-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
 
-#return-to-system {
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    border: 1px solid rgba(100, 255, 218, 0.3);
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
+        #return-to-system {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-#return-to-system:hover {
-    border-color: #64ffda;
-    background: rgba(100, 255, 218, 0.1);
-}
+        #return-to-system:hover {
+            border-color: #64ffda;
+            background: rgba(100, 255, 218, 0.1);
+        }
 
         .loading {
             position: fixed;
@@ -153,7 +153,7 @@
                 padding: 8px 12px;
                 font-size: 12px;
             }
-     }
+        }
 
         @media (max-width: 480px) {
             #info-panel {
@@ -197,9 +197,9 @@
         </div>
     </div>
 
-<div id="return-button" style="display: none;">
-    <button id="return-to-system">← Return to Solar System</button>
-</div>
+    <div id="return-button" style="display: none;">
+        <button id="return-to-system">← Return to Solar System</button>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
@@ -217,6 +217,7 @@
                 
                 // Touch handling
                 this.touchStart = null;
+                this.originalTouch = null;
                 this.isRotating = false;
                 this.rotationSpeed = 0.002;
                 this.cameraDistance = 60;
@@ -297,7 +298,7 @@
                 
                 this.renderer.domElement.addEventListener('touchstart', (e) => this.onTouchStart(e));
                 this.renderer.domElement.addEventListener('touchmove', (e) => this.onTouchMove(e));
-                this.renderer.domElement.addEventListener('touchend', () => this.onTouchEnd());
+                this.renderer.domElement.addEventListener('touchend', (e) => this.onTouchEnd(e));
                 
                 this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
 
@@ -310,10 +311,11 @@
                 });
 
                 document.getElementById('close-panel').addEventListener('click', () => {
-                    this.hideInfoPanel();
+                    this.resetCamera();
                 });
+
                 document.getElementById('return-to-system').addEventListener('click', () => {
-                    this.hideInfoPanel();
+                    this.resetCamera();
                 });
 
                 document.getElementById('audio-toggle').addEventListener('click', () => {
@@ -363,7 +365,11 @@
                         x: event.touches[0].clientX, 
                         y: event.touches[0].clientY 
                     };
-                    this.originalTouch = { x: event.touches[0].clientX, y: event.touches[0].clientY, time: Date.now() };
+                    this.originalTouch = { 
+                        x: event.touches[0].clientX, 
+                        y: event.touches[0].clientY, 
+                        time: Date.now() 
+                    };
                 }
             }
 
@@ -388,28 +394,29 @@
             }
 
             onTouchEnd(event) {
-    event.preventDefault();
-    
-    // Check if this was a tap (not a drag)
-    if (this.touchStart && this.isRotating) {
-        const touchEnd = event.changedTouches[0];
-        const distance = Math.sqrt(
-            Math.pow(touchEnd.clientX - this.touchStart.x, 2) + 
-            Math.pow(touchEnd.clientY - this.touchStart.y, 2)
-        );
-        
-        // If finger didn't move much, treat it as a tap
-        if (distance < 10) {
-            this.onClick({
-                clientX: touchEnd.clientX,
-                clientY: touchEnd.clientY
-            });
-        }
-    }
-    
-    this.isRotating = false;
-    this.touchStart = null;
-}
+                event.preventDefault();
+                
+                // Check if this was a tap (not a drag)
+                if (this.touchStart && this.isRotating && this.originalTouch) {
+                    const touchEnd = event.changedTouches[0];
+                    const distance = Math.sqrt(
+                        Math.pow(touchEnd.clientX - this.originalTouch.x, 2) + 
+                        Math.pow(touchEnd.clientY - this.originalTouch.y, 2)
+                    );
+                    
+                    // If finger didn't move much, treat it as a tap
+                    if (distance < 10) {
+                        this.onClick({
+                            clientX: touchEnd.clientX,
+                            clientY: touchEnd.clientY
+                        });
+                    }
+                }
+                
+                this.isRotating = false;
+                this.touchStart = null;
+                this.originalTouch = null;
+            }
 
             onWheel(event) {
                 if (this.isTransitioning) return;
@@ -628,35 +635,35 @@
                 animateCamera();
             }
 
-createWorldBackground(imageUrl) {
-    // Create a flat plane
-    const bgGeometry = new THREE.PlaneGeometry(60, 40);
-    
-    // Load the custom image
-    const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load(imageUrl, () => {
-        console.log('Background image loaded successfully');
-    }, undefined, (error) => {
-        console.log('Error loading background image:', error);
-    });
-    
-    const bgMaterial = new THREE.MeshBasicMaterial({ 
-        map: texture,
-        side: THREE.DoubleSide,
-        transparent: false, // Start non-transparent
-        opacity: 1
-    });
-    
-    this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
-    this.worldBackground.userData.isBackground = true; // Mark it as background
-    
-    // Position it far behind everything
-    this.worldBackground.position.set(0, 0, -80);
-    
-    this.scene.add(this.worldBackground);
-    
-    console.log('Background plane added to scene');
-}
+            createWorldBackground(imageUrl) {
+                // Create a flat plane
+                const bgGeometry = new THREE.PlaneGeometry(60, 40);
+                
+                // Load the custom image
+                const textureLoader = new THREE.TextureLoader();
+                const texture = textureLoader.load(imageUrl, () => {
+                    console.log('Background image loaded successfully');
+                }, undefined, (error) => {
+                    console.log('Error loading background image:', error);
+                });
+                
+                const bgMaterial = new THREE.MeshBasicMaterial({ 
+                    map: texture,
+                    side: THREE.DoubleSide,
+                    transparent: false,
+                    opacity: 1
+                });
+                
+                this.worldBackground = new THREE.Mesh(bgGeometry, bgMaterial);
+                this.worldBackground.userData.isBackground = true;
+                
+                // Position it far behind everything
+                this.worldBackground.position.set(0, 0, -80);
+                
+                this.scene.add(this.worldBackground);
+                
+                console.log('Background plane added to scene');
+            }
 
             showInfoPanel(artifactData) {
                 document.getElementById('return-button').style.display = 'block';
@@ -667,79 +674,79 @@ createWorldBackground(imageUrl) {
                 title.textContent = `${artifactData.name} - ${artifactData.world}`;
                 description.textContent = artifactData.description;
 
-         if (artifactData.audio) {
-    const audioControls = document.getElementById('audio-controls');
-    const audio = document.getElementById('artifact-audio');
-    const button = document.getElementById('audio-toggle');
-    
-    audioControls.style.display = 'block';
-    audio.src = artifactData.audio;
-    audio.volume = 0.3;
-    audio.loop = true;
-    button.textContent = '▶️ Play';
-    
-    // Optional: Auto-play if you want it
-    audio.play().then(() => {
-        button.textContent = '⏸️ Pause';
-    }).catch(e => {
-        console.log('Autoplay prevented, user will need to click play');
-    });
-}
+                if (artifactData.audio) {
+                    const audioControls = document.getElementById('audio-controls');
+                    const audio = document.getElementById('artifact-audio');
+                    const button = document.getElementById('audio-toggle');
+                    
+                    audioControls.style.display = 'block';
+                    audio.src = artifactData.audio;
+                    audio.volume = 0.3;
+                    audio.loop = true;
+                    button.textContent = '▶️ Play';
+                    
+                    // Optional: Auto-play if you want it
+                    audio.play().then(() => {
+                        button.textContent = '⏸️ Pause';
+                    }).catch(e => {
+                        console.log('Autoplay prevented, user will need to click play');
+                    });
+                }
                 
                 panel.classList.add('visible');
-            }
-
-            hideInfoPanel() {
-                document.getElementById('return-button').style.display = 'none';
-                const panel = document.getElementById('info-panel');
-                const audio = document.getElementById('artifact-audio');
-                
-                audio.pause();
-                audio.currentTime = 0;
-                
-                panel.classList.remove('visible');
-                
-                if (this.selectedArtifact) {
-                    this.selectedArtifact = null;
-                    
-                    if (this.worldBackground) {
-                        this.scene.remove(this.worldBackground);
-                        this.worldBackground = null;
-                    }
-                    
-                    this.artifacts.forEach(artifact => {
-                        artifact.material.transparent = false;
-                        artifact.material.opacity = 1;
-                    });
-                    
-                    this.orbits.forEach(orbit => {
-                        orbit.material.transparent = true;
-                        orbit.material.opacity = 0.3;
-                    });
-                    
-                    if (this.stars) {
-                        this.stars.material.transparent = false;
-                        this.stars.material.opacity = 1;
-                    }
-
-                    // Restore the sun
-                    const sun = this.scene.children.find(child => child.userData.isSun);
-                    if (sun) {
-                        sun.material.transparent = false;
-                        sun.material.opacity = 1;
-                    }
-                    
-                    this.resetCamera();
-                }
             }
 
             resetCamera() {
                 if (this.isTransitioning) return;
                 
+                // Force close the info panel
+                const panel = document.getElementById('info-panel');
+                panel.classList.remove('visible');
+                
+                // Hide return button
+                document.getElementById('return-button').style.display = 'none';
+                
+                // Stop audio
+                const audio = document.getElementById('artifact-audio');
+                audio.pause();
+                audio.currentTime = 0;
+                
+                // Reset camera
                 this.cameraDistance = 60;
                 this.cameraAngle = { theta: 0, phi: Math.PI * 0.3 };
                 this.updateCameraPosition();
-                this.hideInfoPanel();
+                
+                // Clear selected artifact
+                this.selectedArtifact = null;
+                
+                // Remove background
+                if (this.worldBackground) {
+                    this.scene.remove(this.worldBackground);
+                    this.worldBackground = null;
+                }
+                
+                // Restore all objects
+                this.artifacts.forEach(artifact => {
+                    artifact.material.transparent = false;
+                    artifact.material.opacity = 1;
+                });
+                
+                this.orbits.forEach(orbit => {
+                    orbit.material.transparent = true;
+                    orbit.material.opacity = 0.3;
+                });
+                
+                if (this.stars) {
+                    this.stars.material.transparent = false;
+                    this.stars.material.opacity = 1;
+                }
+
+                // Restore the sun
+                const sun = this.scene.children.find(child => child.userData.isSun);
+                if (sun) {
+                    sun.material.transparent = false;
+                    sun.material.opacity = 1;
+                }
             }
 
             animate() {
