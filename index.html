@@ -227,6 +227,9 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
     <script>
         class ArtifactGallery {
             constructor() {
@@ -238,6 +241,9 @@
                 this.selectedArtifact = null;
                 this.isTransitioning = false;
                 this.stars = null;
+                this.loader = new THREE.GLTFLoader();
+                this.objLoader = new THREE.OBJLoader();
+                this.stlLoader = new THREE.STLLoader();
                 
                 // Touch handling
                 this.touchStart = null;
@@ -493,12 +499,29 @@
                     {
                         name: "Spring 2025",
                         artifacts: [
-                            { name: "The Crystal Codex", world: "Luminara", description: "A mystical realm where knowledge crystallizes into tangible gems that pulse with inner light. Scholars mine wisdom from floating crystal caves.", color: 0x64ffda, distance: 8, audio: "https://www.soundjay.com/misc/sounds/wind-chime-2.wav" },
-                            { name: "Windweaver's Compass", world: "Aethermoor", description: "Sky-bound cities drift on eternal winds above storm-wrapped seas. Wind-riders navigate between floating islands using enchanted compasses.", color: 0xff6b6b, distance: 12, audio: "https://www.soundjay.com/nature/sounds/wind.wav" },
-                            { name: "Memory Vessel", world: "Chronos Harbor", description: "A port city existing simultaneously across multiple timelines. Merchants trade memories and experiences from parallel lives. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt elementum tellus, ut maximus leo gravida et. Pellentesque consequat ultrices diam ut lobortis. Duis elementum hendrerit sapien eget mollis. Pellentesque nec nibh dolor. Nullam elit eros, pellentesque id rhoncus eu, sollicitudin quis ex. Mauris lobortis mattis quam, nec commodo augue commodo a. Ut orci nunc, ullamcorper ut lorem quis, elementum mollis lectus. Phasellus ornare vel metus eu pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed auctor orci efficitur orci elementum egestas. Etiam placerat libero quam, vel ultricies eros consectetur sed. Aliquam magna felis, fringilla a metus id, vestibulum imperdiet nisl. Nunc nec vestibulum ipsum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Quisque condimentum, turpis vitae egestas luctus, nisl odio pellentesque quam, ac semper quam velit at tortor. Proin pretium tellus non enim laoreet, sed gravida velit feugiat. In dictum lectus id ipsum vestibulum, nec vestibulum risus mattis. Sed placerat tortor vitae dolor dictum finibus. Aenean vel sollicitudin tortor. Curabitur laoreet, nisl ut suscipit commodo, risus risus rhoncus neque, tristique cursus dolor quam in purus. Cras a arcu eget nibh volutpat ornare. Proin mi dui, finibus nec elementum sed, maximus eget nisi. Etiam efficitur gravida dictum. Aenean sed fringilla eros. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Fusce dictum a odio ac suscipit. Morbi id lacinia leo. Aenean in magna nibh. Donec ac est elit. Aliquam quis facilisis augue, ut accumsan lectus. Duis fermentum libero sed enim iaculis, a lacinia nulla pretium. Praesent ac dignissim nisi. Maecenas nibh felis, tempus nec augue vitae, hendrerit convallis ligula. Nam porta sem sed turpis dictum, consectetur elementum ex sodales. Etiam pretium ipsum sit amet dignissim efficitur. Phasellus faucibus, arcu ac rhoncus vulputate, nunc nibh sollicitudin lacus, vitae egestas tellus metus ut sem. Nulla at tortor nibh. Praesent elementum vulputate tellus, quis rutrum nibh fringilla et. Integer eu ligula viverra, consequat eros id, sodales augue. Nunc non felis tempor leo ornare egestas. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam in ultricies lectus. Etiam placerat ac est non pulvinar. Vivamus malesuada massa vel lacus varius luctus. Aliquam id orci ac mauris pharetra imperdiet eu id quam. Donec eleifend cursus dui, vel vulputate nibh vestibulum euismod. Suspendisse potenti. Mauris sem nulla, tincidunt quis dui et, feugiat blandit metus. Etiam sollicitudin augue non lectus condimentum, eu rhoncus odio tempus. Nulla in vehicula nulla, pretium vulputate nibh. Morbi pellentesque molestie scelerisque. Morbi interdum et turpis eget vehicula. In rutrum suscipit lectus at tristique. Sed ac ornare eros.Vestibulum tempor ac leo eget pharetra. Aenean ultrices massa scelerisque fermentum elementum. Nam nulla tortor, aliquam in consequat eget, dignissim sit amet mauris. Nunc in nibh ullamcorper, dictum purus et, finibus lectus. Curabitur tellus arcu, commodo at volutpat ut, lobortis non elit. Integer sem odio, euismod nec sem vitae, pretium congue orci. Mauris interdum pulvinar eleifend. Pellentesque tempus nibh non lectus ullamcorper, ac convallis lorem volutpat.", color: 0x4ecdc4, distance: 16, audio: "https://github.com/lostpilgrimage/knownworlds/raw/refs/heads/main/07058005.mp3" },
-                            { name: "Songbird Automaton", world: "Harmonic Gardens", description: "Mechanical gardens where clockwork creatures create music from morning dew and moonlight, tended by musician-gardeners.", color: 0xffe66d, distance: 20, audio: "https://www.soundjay.com/nature/sounds/birds.wav" },
-                            { name: "Shadow Weaver's Loom", world: "Umbral Sanctuary", description: "A hidden realm where light and darkness are woven together by ancient artisans. They craft garments that can shift between dimensions, allowing the wearer to exist in multiple realities simultaneously.", color: 0x8a2be2, distance: 24, audio: "https://www.soundjay.com/misc/sounds/mystic.wav" },
-                            { name: "Phoenix Egg of Renewal", world: "Ember's End", description: "A volcanic world where the last phoenix tends to eggs that contain the essence of rebirth. When one world dies, these eggs can spark new civilizations from the ashes of the old.", color: 0xff4500, distance: 28, audio: "https://www.soundjay.com/nature/sounds/fire-burning.wav" }
+                            { name: "The Crystal Codex",
+                                world: "Luminara",
+                                description: "A mystical realm where knowledge crystallizes into tangible gems that pulse with inner light. Scholars mine wisdom from floating crystal caves.",
+                                color: 0x64ffda,
+                                distance: 8,
+                                audio: "https://www.soundjay.com/misc/sounds/wind-chime-2.wav",
+                                model: "models/Lantern.glb",
+                                scale: 2 },
+                            { name: "Windweaver's Compass", world: "Aethermoor", description: "Sky-bound cities drift on eternal winds above storm-wrapped seas. Wind-riders navigate between floating islands using enchanted compasses.", color: 0xff6b6b, distance: 12, audio: "https://www.soundjay.com/nature/sounds/wind.wav",
+                                model: "models/crystal.obj",
+                                scale: 2 },
+                            { name: "Memory Vessel", world: "Chronos Harbor", description: "A port city existing simultaneously across multiple timelines. Merchants trade memories and experiences from parallel lives. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt elementum tellus, ut maximus leo gravida et. Pellentesque consequat ultrices diam ut lobortis. Duis elementum hendrerit sapien eget mollis. Pellentesque nec nibh dolor. Nullam elit eros, pellentesque id rhoncus eu, sollicitudin quis ex.", color: 0x4ecdc4, distance: 16, audio: "https://github.com/lostpilgrimage/knownworlds/raw/refs/heads/main/07058005.mp3",
+                                model: "models/crystal.obj",
+                                scale: 2 },
+                            { name: "Songbird Automaton", world: "Harmonic Gardens", description: "Mechanical gardens where clockwork creatures create music from morning dew and moonlight, tended by musician-gardeners.", color: 0xffe66d, distance: 20, audio: "https://www.soundjay.com/nature/sounds/birds.wav",
+                                model: "models/crystal.obj",
+                                scale: 2 },
+                            { name: "Shadow Weaver's Loom", world: "Umbral Sanctuary", description: "A hidden realm where light and darkness are woven together by ancient artisans. They craft garments that can shift between dimensions, allowing the wearer to exist in multiple realities simultaneously.", color: 0x8a2be2, distance: 24, audio: "https://www.soundjay.com/misc/sounds/mystic.wav",
+                                model: "models/crystal.obj",
+                                scale: 2 },
+                            { name: "Phoenix Egg of Renewal", world: "Ember's End", description: "A volcanic world where the last phoenix tends to eggs that contain the essence of rebirth. When one world dies, these eggs can spark new civilizations from the ashes of the old.", color: 0xff4500, distance: 28, audio: "https://www.soundjay.com/nature/sounds/fire-burning.wav",
+                                model: "models/crystal.obj",
+                                scale: 2 }
                         ]
                     },
                     {
@@ -565,6 +588,7 @@
 
                 const system = this.solarSystems[index];
                 system.artifacts.forEach((artifactData, i) => {
+                    // Create orbit first
                     const orbitGeometry = new THREE.RingGeometry(artifactData.distance - 0.2, artifactData.distance + 0.2, 64);
                     const orbitMaterial = new THREE.MeshBasicMaterial({
                         color: 0xffffff,
@@ -582,28 +606,82 @@
                     this.scene.add(orbit);
                     this.orbits.push(orbit);
 
-                    const artifactGeometry = new THREE.IcosahedronGeometry(2);
-                    const artifactMaterial = new THREE.MeshLambertMaterial({
-                        color: artifactData.color,
-                        emissive: artifactData.color,
-                        emissiveIntensity: 0.05
-                    });
-                    const artifact = new THREE.Mesh(artifactGeometry, artifactMaterial);
-                    artifact.castShadow = true;
-                    artifact.receiveShadow = true;
-                    
-                    // Add randomness to initial positioning
+                    // Calculate positioning
                     const baseAngle = (i / system.artifacts.length) * Math.PI * 2;
-                    const randomOffset = (Math.random() - 0.5) * Math.PI * 0.4; // Random offset up to ~36 degrees
+                    const randomOffset = (Math.random() - 0.5) * Math.PI * 0.4;
                     const angle = baseAngle + randomOffset;
-                    
-                    // Add slight random variation to distance and height
                     const distance = artifactData.distance + (Math.random() - 0.5) * 2;
-                    const height = (Math.random() - 0.5) * 4; // Random height variation
+                    const height = (Math.random() - 0.5) * 4;
+
+                    // Load 3D model or create fallback geometry
+                    if (artifactData.model) {
+                        this.loadModel(artifactData, angle, distance, height);
+                    } else {
+                        // Create fallback geometry for artifacts without models
+                        this.createFallbackArtifact(artifactData, angle, distance, height);
+                    }
+                });
+
+                this.resetCamera();
+            }
+            
+            loadModel(artifactData, angle, distance, height) {
+                const modelPath = artifactData.model;
+                const fileExtension = modelPath.split('.').pop().toLowerCase();
+                
+                const onLoad = (object) => {
+                    let artifact;
                     
+                    // Handle different loader return types
+                    if (fileExtension === 'glb' || fileExtension === 'gltf') {
+                        artifact = object.scene; // GLTF returns { scene: ... }
+                    } else {
+                        artifact = object; // OBJ and STL return the object directly
+                    }
+                    
+                    // For STL files, we need to create a mesh from the geometry
+                    if (fileExtension === 'stl') {
+                        const material = new THREE.MeshLambertMaterial({
+                            color: artifactData.color,
+                            emissive: artifactData.color,
+                            emissiveIntensity: 0.1
+                        });
+                        artifact = new THREE.Mesh(object, material);
+                    }
+                    
+                    // Scale the model
+                    const scale = artifactData.scale || 2;
+                    artifact.scale.setScalar(scale);
+                    
+                    // Position the artifact
                     artifact.position.x = Math.cos(angle) * distance;
                     artifact.position.z = Math.sin(angle) * distance;
                     artifact.position.y = height;
+                    
+                    // Enable shadows and apply materials
+                    artifact.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            
+                            // Apply color tint to the model (except for STL which already has material)
+                            if (child.material && fileExtension !== 'stl') {
+                                // Clone the material to avoid sharing between artifacts
+                                child.material = child.material.clone();
+                                
+                                if (!child.material.emissive) {
+                                    child.material = new THREE.MeshLambertMaterial({
+                                        color: artifactData.color,
+                                        emissive: artifactData.color,
+                                        emissiveIntensity: 0.1
+                                    });
+                                } else {
+                                    child.material.emissive = new THREE.Color(artifactData.color);
+                                    child.material.emissiveIntensity = 0.1;
+                                }
+                            }
+                        }
+                    });
                     
                     // Store the orbital parameters for animation
                     artifact.userData = {
@@ -611,18 +689,98 @@
                         orbitalAngle: angle,
                         orbitalDistance: distance,
                         orbitalHeight: height,
-                        orbitalSpeed: 0.005 + Math.random() * 0.005 // Varying orbital speeds
+                        orbitalSpeed: 0.005 + Math.random() * 0.005,
+                        isModel: true
                     };
                     
                     this.scene.add(artifact);
                     this.artifacts.push(artifact);
-                });
-
-                this.resetCamera();
+                };
+                
+                const onProgress = (progress) => {
+                    console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+                };
+                
+                const onError = (error) => {
+                    console.error('Error loading model:', error);
+                    // Create fallback geometry if model fails to load
+                    this.createFallbackArtifact(artifactData, angle, distance, height);
+                };
+                
+                // Choose the appropriate loader based on file extension
+                switch (fileExtension) {
+                    case 'glb':
+                    case 'gltf':
+                        this.loader.load(modelPath, onLoad, onProgress, onError);
+                        break;
+                    case 'obj':
+                        this.objLoader.load(modelPath, onLoad, onProgress, onError);
+                        break;
+                    case 'stl':
+                        this.stlLoader.load(modelPath, onLoad, onProgress, onError);
+                        break;
+                    default:
+                        console.warn('Unsupported file format:', fileExtension);
+                        this.createFallbackArtifact(artifactData, angle, distance, height);
+                        break;
+                }
             }
 
+            createFallbackArtifact(artifactData, angle, distance, height) {
+                // Create more complex procedural shapes
+                let artifactGeometry;
+                const name = artifactData.name.toLowerCase();
+                
+                if (name.includes('crystal') || name.includes('codex')) {
+                    artifactGeometry = new THREE.OctahedronGeometry(2);
+                } else if (name.includes('compass') || name.includes('wind')) {
+                    artifactGeometry = new THREE.CylinderGeometry(2.5, 2.5, 0.5, 12);
+                } else if (name.includes('vessel') || name.includes('memory')) {
+                    artifactGeometry = new THREE.CylinderGeometry(1, 2, 3, 12);
+                } else if (name.includes('egg') || name.includes('phoenix')) {
+                    artifactGeometry = new THREE.OctahedronGeometry(3);
+                    artifactGeometry.scale(1, 1.3, 1);
+                } else if (name.includes('heart') || name.includes('flame')) {
+                    artifactGeometry = new THREE.ConeGeometry(1.5, 4, 8);
+                } else if (name.includes('mask') || name.includes('mirror')) {
+                    artifactGeometry = new THREE.PlaneGeometry(3, 4);
+                } else if (name.includes('scroll') || name.includes('map')) {
+                    artifactGeometry = new THREE.CylinderGeometry(0.3, 0.3, 4, 8);
+                } else {
+                    artifactGeometry = new THREE.IcosahedronGeometry(2);
+                }
+
+                const artifactMaterial = new THREE.MeshLambertMaterial({
+                    color: artifactData.color,
+                    emissive: artifactData.color,
+                    emissiveIntensity: 0.05
+                });
+                const artifact = new THREE.Mesh(artifactGeometry, artifactMaterial);
+                artifact.castShadow = true;
+                artifact.receiveShadow = true;
+                
+                artifact.position.x = Math.cos(angle) * distance;
+                artifact.position.z = Math.sin(angle) * distance;
+                artifact.position.y = height;
+                
+                artifact.userData = {
+                    ...artifactData,
+                    orbitalAngle: angle,
+                    orbitalDistance: distance,
+                    orbitalHeight: height,
+                    orbitalSpeed: 0.005 + Math.random() * 0.005,
+                    isModel: false
+                };
+                
+                this.scene.add(artifact);
+                this.artifacts.push(artifact);
+            }
+            
             selectArtifact(artifact) {
                 if (this.isTransitioning) return;
+                
+                console.log('Selected artifact:', artifact.userData.name); // Add this line
+                console.log('Total artifacts:', this.artifacts.length); // Add this line
                 
                 this.selectedArtifact = artifact;
                 this.isTransitioning = true;
@@ -635,14 +793,41 @@
 
                 this.artifacts.forEach(otherArtifact => {
                     if (otherArtifact !== artifact) {
-                        otherArtifact.material.transparent = true;
-                        const fadeOut = () => {
-                            otherArtifact.material.opacity = Math.max(0, otherArtifact.material.opacity - 0.02);
-                            if (otherArtifact.material.opacity > 0) {
-                                requestAnimationFrame(fadeOut);
+                        console.log('Fading out:', otherArtifact.userData.name);
+                        
+                        // Handle both loaded models and procedural geometry
+                        if (otherArtifact.userData.isModel) {
+                            // For loaded models, traverse through all meshes
+                            otherArtifact.traverse((child) => {
+                                if (child.isMesh && child.material) {
+                                    child.material = child.material.clone();
+                                    child.material.transparent = true;
+                                    const fadeOut = () => {
+                                        if (child.material && child.material.opacity > 0) {
+                                            child.material.opacity = Math.max(0, child.material.opacity - 0.02);
+                                            if (child.material.opacity > 0) {
+                                                requestAnimationFrame(fadeOut);
+                                            }
+                                        }
+                                    };
+                                    fadeOut();
+                                }
+                            });
+                        } else {
+                            // For procedural geometry, use the direct material
+                            if (otherArtifact.material) {
+                                otherArtifact.material.transparent = true;
+                                const fadeOut = () => {
+                                    if (otherArtifact.material && otherArtifact.material.opacity > 0) {
+                                        otherArtifact.material.opacity = Math.max(0, otherArtifact.material.opacity - 0.02);
+                                        if (otherArtifact.material.opacity > 0) {
+                                            requestAnimationFrame(fadeOut);
+                                        }
+                                    }
+                                };
+                                fadeOut();
                             }
-                        };
-                        fadeOut();
+                        }
                     }
                 });
 
@@ -656,19 +841,6 @@
                     };
                     fadeOut();
                 });
-
-                // Hide the sun too
-                const sun = this.scene.children.find(child => child.geometry && child.geometry.type === 'SphereGeometry' && child.geometry.parameters.radius === 2);
-                if (sun) {
-                    sun.material.transparent = true;
-                    const fadeOut = () => {
-                        sun.material.opacity = Math.max(0, sun.material.opacity - 0.02);
-                        if (sun.material.opacity > 0) {
-                            requestAnimationFrame(fadeOut);
-                        }
-                    };
-                    fadeOut();
-                }
 
                 if (this.stars) {
                     this.stars.material.transparent = true;
@@ -765,8 +937,21 @@
                 
                 // Restore all objects
                 this.artifacts.forEach(artifact => {
-                    artifact.material.transparent = false;
-                    artifact.material.opacity = 1;
+                    if (artifact.userData.isModel) {
+                        // For loaded models, traverse through all meshes
+                        artifact.traverse((child) => {
+                            if (child.isMesh && child.material) {
+                                child.material.transparent = false;
+                                child.material.opacity = 1;
+                            }
+                        });
+                    } else {
+                        // For procedural geometry, use the direct material
+                        if (artifact.material) {
+                            artifact.material.transparent = false;
+                            artifact.material.opacity = 1;
+                        }
+                    }
                 });
                 
                 this.orbits.forEach(orbit => {
@@ -791,7 +976,14 @@
                 requestAnimationFrame(() => this.animate());
 
                 this.artifacts.forEach((artifact, i) => {
-                    artifact.rotation.y += 0.01;
+                    // Rotate artifacts (models might need different rotation handling)
+                    if (artifact.userData.isModel) {
+                        // For loaded models, rotate around Y axis more slowly
+                        artifact.rotation.y += 0.005;
+                    } else {
+                        // For procedural geometry, use original rotation speed
+                        artifact.rotation.y += 0.01;
+                    }
                     
                     if (!this.selectedArtifact || this.selectedArtifact !== artifact) {
                         // Use the stored orbital parameters for more natural movement
