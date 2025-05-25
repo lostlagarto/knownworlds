@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Roboto Slab', serif;
             background: linear-gradient(135deg, #0a0a23 0%, #1a1a3a 100%);
             color: white;
             overflow: hidden;
@@ -48,8 +48,15 @@
 
         #info-panel h2 {
             color: #64ffda;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        #info-panel h3 {
+            color: #ffffff;
             margin-bottom: 15px;
-            font-size: 1.5em;
+            font-size: 1.1em;
+            opacity: 0.9;
         }
 
         #info-panel p {
@@ -87,18 +94,19 @@
         }
 
         select, button {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             color: white;
-            border: 1px solid rgba(100, 255, 218, 0.3);
+            border: none;
             padding: 10px 15px;
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.2s;
+            backdrop-filter: none;
+            box-shadow: none;
         }
 
         select:hover, button:hover {
-            border-color: #64ffda;
             background: rgba(100, 255, 218, 0.1);
         }
 
@@ -112,7 +120,7 @@
         #return-to-system {
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            border: 1px solid rgba(100, 255, 218, 0.3);
+            border: none;
             padding: 12px 20px;
             border-radius: 8px;
             font-size: 14px;
@@ -121,7 +129,6 @@
         }
 
         #return-to-system:hover {
-            border-color: #64ffda;
             background: rgba(100, 255, 218, 0.1);
         }
 
@@ -133,6 +140,23 @@
             color: #64ffda;
             font-size: 18px;
             z-index: 2000;
+        }
+
+        #audio-controls {
+            margin-bottom: 15px;
+        }
+
+        #audio-toggle {
+            background: none;
+            border: none;
+            color: #64ffda;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #audio-toggle:hover {
+            background: rgba(100, 255, 218, 0.1);
         }
 
         /* Mobile Styles */
@@ -187,18 +211,19 @@
     <div id="info-panel">
         <button class="close-btn" id="close-panel">&times;</button>
         <h2 id="artifact-title">Artifact Title</h2>
-        <p id="artifact-description"></p>
-        <div id="artifact-images"></div>
-        <div id="audio-controls" style="margin-top: 15px; display: none;">
-            <button id="audio-toggle" style="background: none; border: 1px solid #64ffda; color: #64ffda; padding: 8px 12px; border-radius: 5px; cursor: pointer;">
-                ▶️ Play
+        <h3 id="world-title">World Name</h3>
+        <div id="audio-controls" style="display: none;">
+            <button id="audio-toggle">
+                ▶️ Receive broadcast
             </button>
             <audio id="artifact-audio" style="display: none;"></audio>
         </div>
+        <p id="artifact-description"></p>
+        <div id="artifact-images"></div>
     </div>
 
     <div id="return-button" style="display: none;">
-        <button id="return-to-system">← Return to Solar System</button>
+        <button id="return-to-system">← Return to Known Worlds</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -244,7 +269,7 @@
                 this.createStarField();
 
                 // Ambient light for general scene illumination
-                const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
                 this.scene.add(ambientLight);
 
                 this.updateCameraPosition();
@@ -319,10 +344,10 @@
     
                     if (audio.paused) {
                         audio.play();
-                        button.textContent = '⏸️ Pause';
+                        button.textContent = '⏸️ Pause broadcast';
                     } else {
                         audio.pause();
-                        button.textContent = '▶️ Play';
+                        button.textContent = '▶️ Receive broadcast';
                     }
                 });
             }
@@ -356,14 +381,14 @@
                 event.preventDefault();
                 if (event.touches.length === 1) {
                     this.isRotating = true;
-                    this.touchStart = { 
-                        x: event.touches[0].clientX, 
-                        y: event.touches[0].clientY 
+                    this.touchStart = {
+                        x: event.touches[0].clientX,
+                        y: event.touches[0].clientY
                     };
-                    this.originalTouch = { 
-                        x: event.touches[0].clientX, 
-                        y: event.touches[0].clientY, 
-                        time: Date.now() 
+                    this.originalTouch = {
+                        x: event.touches[0].clientX,
+                        y: event.touches[0].clientY,
+                        time: Date.now()
                     };
                 }
             }
@@ -381,9 +406,9 @@
                     
                     this.updateCameraPosition();
                     
-                    this.touchStart = { 
-                        x: event.touches[0].clientX, 
-                        y: event.touches[0].clientY 
+                    this.touchStart = {
+                        x: event.touches[0].clientX,
+                        y: event.touches[0].clientY
                     };
                 }
             }
@@ -395,7 +420,7 @@
                 if (this.touchStart && this.isRotating && this.originalTouch) {
                     const touchEnd = event.changedTouches[0];
                     const distance = Math.sqrt(
-                        Math.pow(touchEnd.clientX - this.originalTouch.x, 2) + 
+                        Math.pow(touchEnd.clientX - this.originalTouch.x, 2) +
                         Math.pow(touchEnd.clientY - this.originalTouch.y, 2)
                     );
                     
@@ -447,7 +472,7 @@
                         const screenY = (-screenPos.y + 1) * window.innerHeight / 2;
                         
                         const distance = Math.sqrt(
-                            Math.pow(event.clientX - screenX, 2) + 
+                            Math.pow(event.clientX - screenX, 2) +
                             Math.pow(event.clientY - screenY, 2)
                         );
                         
@@ -470,8 +495,10 @@
                         artifacts: [
                             { name: "The Crystal Codex", world: "Luminara", description: "A mystical realm where knowledge crystallizes into tangible gems that pulse with inner light. Scholars mine wisdom from floating crystal caves.", color: 0x64ffda, distance: 8, audio: "https://www.soundjay.com/misc/sounds/wind-chime-2.wav" },
                             { name: "Windweaver's Compass", world: "Aethermoor", description: "Sky-bound cities drift on eternal winds above storm-wrapped seas. Wind-riders navigate between floating islands using enchanted compasses.", color: 0xff6b6b, distance: 12, audio: "https://www.soundjay.com/nature/sounds/wind.wav" },
-                            { name: "Memory Vessel", world: "Chronos Harbor", description: "A port city existing simultaneously across multiple timelines. Merchants trade memories and experiences from parallel lives.", color: 0x4ecdc4, distance: 16, audio: "https://www.soundjay.com/misc/sounds/clock-tick.wav" },
-                            { name: "Songbird Automaton", world: "Harmonic Gardens", description: "Mechanical gardens where clockwork creatures create music from morning dew and moonlight, tended by musician-gardeners.", color: 0xffe66d, distance: 20, audio: "https://www.soundjay.com/nature/sounds/birds.wav" }
+                            { name: "Memory Vessel", world: "Chronos Harbor", description: "A port city existing simultaneously across multiple timelines. Merchants trade memories and experiences from parallel lives. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam tincidunt elementum tellus, ut maximus leo gravida et. Pellentesque consequat ultrices diam ut lobortis. Duis elementum hendrerit sapien eget mollis. Pellentesque nec nibh dolor. Nullam elit eros, pellentesque id rhoncus eu, sollicitudin quis ex. Mauris lobortis mattis quam, nec commodo augue commodo a. Ut orci nunc, ullamcorper ut lorem quis, elementum mollis lectus. Phasellus ornare vel metus eu pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed auctor orci efficitur orci elementum egestas. Etiam placerat libero quam, vel ultricies eros consectetur sed. Aliquam magna felis, fringilla a metus id, vestibulum imperdiet nisl. Nunc nec vestibulum ipsum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Quisque condimentum, turpis vitae egestas luctus, nisl odio pellentesque quam, ac semper quam velit at tortor. Proin pretium tellus non enim laoreet, sed gravida velit feugiat. In dictum lectus id ipsum vestibulum, nec vestibulum risus mattis. Sed placerat tortor vitae dolor dictum finibus. Aenean vel sollicitudin tortor. Curabitur laoreet, nisl ut suscipit commodo, risus risus rhoncus neque, tristique cursus dolor quam in purus. Cras a arcu eget nibh volutpat ornare. Proin mi dui, finibus nec elementum sed, maximus eget nisi. Etiam efficitur gravida dictum. Aenean sed fringilla eros. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Fusce dictum a odio ac suscipit. Morbi id lacinia leo. Aenean in magna nibh. Donec ac est elit. Aliquam quis facilisis augue, ut accumsan lectus. Duis fermentum libero sed enim iaculis, a lacinia nulla pretium. Praesent ac dignissim nisi. Maecenas nibh felis, tempus nec augue vitae, hendrerit convallis ligula. Nam porta sem sed turpis dictum, consectetur elementum ex sodales. Etiam pretium ipsum sit amet dignissim efficitur. Phasellus faucibus, arcu ac rhoncus vulputate, nunc nibh sollicitudin lacus, vitae egestas tellus metus ut sem. Nulla at tortor nibh. Praesent elementum vulputate tellus, quis rutrum nibh fringilla et. Integer eu ligula viverra, consequat eros id, sodales augue. Nunc non felis tempor leo ornare egestas. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam in ultricies lectus. Etiam placerat ac est non pulvinar. Vivamus malesuada massa vel lacus varius luctus. Aliquam id orci ac mauris pharetra imperdiet eu id quam. Donec eleifend cursus dui, vel vulputate nibh vestibulum euismod. Suspendisse potenti. Mauris sem nulla, tincidunt quis dui et, feugiat blandit metus. Etiam sollicitudin augue non lectus condimentum, eu rhoncus odio tempus. Nulla in vehicula nulla, pretium vulputate nibh. Morbi pellentesque molestie scelerisque. Morbi interdum et turpis eget vehicula. In rutrum suscipit lectus at tristique. Sed ac ornare eros.Vestibulum tempor ac leo eget pharetra. Aenean ultrices massa scelerisque fermentum elementum. Nam nulla tortor, aliquam in consequat eget, dignissim sit amet mauris. Nunc in nibh ullamcorper, dictum purus et, finibus lectus. Curabitur tellus arcu, commodo at volutpat ut, lobortis non elit. Integer sem odio, euismod nec sem vitae, pretium congue orci. Mauris interdum pulvinar eleifend. Pellentesque tempus nibh non lectus ullamcorper, ac convallis lorem volutpat.", color: 0x4ecdc4, distance: 16, audio: "https://github.com/lostpilgrimage/knownworlds/raw/refs/heads/main/07058005.mp3" },
+                            { name: "Songbird Automaton", world: "Harmonic Gardens", description: "Mechanical gardens where clockwork creatures create music from morning dew and moonlight, tended by musician-gardeners.", color: 0xffe66d, distance: 20, audio: "https://www.soundjay.com/nature/sounds/birds.wav" },
+                            { name: "Shadow Weaver's Loom", world: "Umbral Sanctuary", description: "A hidden realm where light and darkness are woven together by ancient artisans. They craft garments that can shift between dimensions, allowing the wearer to exist in multiple realities simultaneously.", color: 0x8a2be2, distance: 24, audio: "https://www.soundjay.com/misc/sounds/mystic.wav" },
+                            { name: "Phoenix Egg of Renewal", world: "Ember's End", description: "A volcanic world where the last phoenix tends to eggs that contain the essence of rebirth. When one world dies, these eggs can spark new civilizations from the ashes of the old.", color: 0xff4500, distance: 28, audio: "https://www.soundjay.com/nature/sounds/fire-burning.wav" }
                         ]
                     },
                     {
@@ -504,7 +531,7 @@
                 this.orbits = [];
 
                 const sunGeometry = new THREE.SphereGeometry(3, 32, 32);
-                const sunMaterial = new THREE.MeshBasicMaterial({ 
+                const sunMaterial = new THREE.MeshBasicMaterial({
                     color: 0xffff00,
                     emissive: 0xffaa00,
                     emissiveIntensity: 0.8
@@ -539,19 +566,24 @@
                 const system = this.solarSystems[index];
                 system.artifacts.forEach((artifactData, i) => {
                     const orbitGeometry = new THREE.RingGeometry(artifactData.distance - 0.2, artifactData.distance + 0.2, 64);
-                    const orbitMaterial = new THREE.MeshLambertMaterial({ 
-                        color: 0x444444, 
+                    const orbitMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xffffff,
                         side: THREE.DoubleSide,
                         transparent: true,
                         opacity: 0.3
                     });
                     const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
-                    orbit.rotation.x = Math.PI / 2;
+                    
+                    // Add random tilt to each orbit for more natural look
+                    orbit.rotation.x = Math.PI / 2 + (Math.random() - 0.5) * 0.3;
+                    orbit.rotation.y = (Math.random() - 0.5) * 0.2;
+                    orbit.rotation.z = (Math.random() - 0.5) * 0.2;
+                    
                     this.scene.add(orbit);
                     this.orbits.push(orbit);
 
                     const artifactGeometry = new THREE.IcosahedronGeometry(2);
-                    const artifactMaterial = new THREE.MeshLambertMaterial({ 
+                    const artifactMaterial = new THREE.MeshLambertMaterial({
                         color: artifactData.color,
                         emissive: artifactData.color,
                         emissiveIntensity: 0.05
@@ -560,12 +592,28 @@
                     artifact.castShadow = true;
                     artifact.receiveShadow = true;
                     
-                    const angle = (i / system.artifacts.length) * Math.PI * 2;
-                    artifact.position.x = Math.cos(angle) * artifactData.distance;
-                    artifact.position.z = Math.sin(angle) * artifactData.distance;
-                    artifact.position.y = 0;
+                    // Add randomness to initial positioning
+                    const baseAngle = (i / system.artifacts.length) * Math.PI * 2;
+                    const randomOffset = (Math.random() - 0.5) * Math.PI * 0.4; // Random offset up to ~36 degrees
+                    const angle = baseAngle + randomOffset;
                     
-                    artifact.userData = artifactData;
+                    // Add slight random variation to distance and height
+                    const distance = artifactData.distance + (Math.random() - 0.5) * 2;
+                    const height = (Math.random() - 0.5) * 4; // Random height variation
+                    
+                    artifact.position.x = Math.cos(angle) * distance;
+                    artifact.position.z = Math.sin(angle) * distance;
+                    artifact.position.y = height;
+                    
+                    // Store the orbital parameters for animation
+                    artifact.userData = {
+                        ...artifactData,
+                        orbitalAngle: angle,
+                        orbitalDistance: distance,
+                        orbitalHeight: height,
+                        orbitalSpeed: 0.005 + Math.random() * 0.005 // Varying orbital speeds
+                    };
+                    
                     this.scene.add(artifact);
                     this.artifacts.push(artifact);
                 });
@@ -660,9 +708,11 @@
                 document.getElementById('return-button').style.display = 'block';
                 const panel = document.getElementById('info-panel');
                 const title = document.getElementById('artifact-title');
+                const worldTitle = document.getElementById('world-title');
                 const description = document.getElementById('artifact-description');
 
-                title.textContent = `${artifactData.name} - ${artifactData.world}`;
+                title.textContent = artifactData.name;
+                worldTitle.textContent = artifactData.world;
                 description.textContent = artifactData.description;
 
                 if (artifactData.audio) {
@@ -674,11 +724,11 @@
                     audio.src = artifactData.audio;
                     audio.volume = 0.3;
                     audio.loop = true;
-                    button.textContent = '▶️ Play';
+                    button.textContent = '▶️ Receive broadcast';
                     
                     // Optional: Auto-play if you want it
                     audio.play().then(() => {
-                        button.textContent = '⏸️ Pause';
+                        button.textContent = '⏸️ Pause broadcast';
                     }).catch(e => {
                         console.log('Autoplay prevented, user will need to click play');
                     });
@@ -744,10 +794,12 @@
                     artifact.rotation.y += 0.01;
                     
                     if (!this.selectedArtifact || this.selectedArtifact !== artifact) {
-                        const angle = Date.now() * 0.0005 + (i * Math.PI * 2 / this.artifacts.length);
-                        const distance = artifact.userData.distance;
-                        artifact.position.x = Math.cos(angle) * distance;
-                        artifact.position.z = Math.sin(angle) * distance;
+                        // Use the stored orbital parameters for more natural movement
+                        artifact.userData.orbitalAngle += artifact.userData.orbitalSpeed;
+                        
+                        artifact.position.x = Math.cos(artifact.userData.orbitalAngle) * artifact.userData.orbitalDistance;
+                        artifact.position.z = Math.sin(artifact.userData.orbitalAngle) * artifact.userData.orbitalDistance;
+                        artifact.position.y = artifact.userData.orbitalHeight;
                     }
                 });
 
